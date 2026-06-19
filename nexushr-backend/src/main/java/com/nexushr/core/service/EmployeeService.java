@@ -35,6 +35,9 @@ public class EmployeeService {
         if (employee.getPerformanceRating() == null) {
             employee.setPerformanceRating(3.0); // Neutral default rating
         }
+        if (employee.getHireDate() == null) {
+            employee.setHireDate(java.time.LocalDate.now());
+        }
         return employeeRepository.save(employee);
     }
 

@@ -46,9 +46,9 @@ export default function App() {
   const [newLastName, setNewLastName] = useState('');
   const [newEmail, setNewEmail] = useState('');
   const [newPhone, setNewPhone] = useState('');
-  const [newDept, setNewDept] = useState('Engineering');
-  const [newPos, setNewPos] = useState('Software Engineer');
-  const [newSalary, setNewSalary] = useState('8500');
+  const [newDept, setNewDept] = useState('');
+  const [newPos, setNewPos] = useState('');
+  const [newSalary, setNewSalary] = useState('');
 
   // Daily attendance state
   const [todayAttendance, setTodayAttendance] = useState<any | null>(null);
@@ -188,6 +188,16 @@ export default function App() {
     setMetrics(null);
     setSelectedTeamMember(null);
     setActiveTab('dashboard');
+    setUsernameInput('');
+    setPasswordInput('');
+    setEmailInput('');
+    setNewFirstName('');
+    setNewLastName('');
+    setNewEmail('');
+    setNewPhone('');
+    setNewDept('');
+    setNewPos('');
+    setNewSalary('');
     showToast('Successfully signed out');
   };
 
@@ -284,6 +294,14 @@ export default function App() {
       
       // Auto complete "Add First Employee" onboarding step if we created profile
       markStepCompleted(5);
+
+      setNewFirstName('');
+      setNewLastName('');
+      setNewEmail('');
+      setNewPhone('');
+      setNewDept('');
+      setNewPos('');
+      setNewSalary('');
 
       showToast('Profile card generated successfully!');
       loadTabContext();
@@ -912,7 +930,7 @@ export default function App() {
         
         {/* LOGGED OUT VIEW */}
         {!session ? (
-          <div className="flex-1 flex items-center justify-center p-6 min-h-[calc(100vh-80px)]">
+          <div className="login-bg flex-1 flex items-center justify-center p-6 min-h-[calc(100vh-80px)]">
             <div className="glass-card max-w-md w-full p-8 relative dark:bg-slate-800 dark:border-slate-700">
               <div className="text-center mb-8">
                 <div className="w-12 h-12 rounded bg-indigo-650 flex items-center justify-center mx-auto mb-3 shadow-md">
@@ -1153,101 +1171,143 @@ export default function App() {
               
               {/* Profile Setup Modal overlay if profile missing */}
               {showProfileForm && (
-                <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                  <div className="glass-card max-w-lg w-full p-6 relative dark:bg-slate-800 dark:border-slate-700">
-                    <button 
-                      onClick={() => setShowProfileForm(false)} 
-                      className="absolute top-4 right-4 text-slate-400 hover:text-slate-650"
-                    >
-                      <X size={20} />
-                    </button>
-                    
-                    <h3 className="text-xl font-bold font-display text-slate-800 dark:text-white mb-6">Setup Profile Card</h3>
-                    
-                    <form onSubmit={handleCreateProfile} className="space-y-4">
-                      <div className="grid grid-cols-2 gap-4">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" style={{background: 'rgba(10,14,30,0.7)', backdropFilter: 'blur(8px)'}}>
+                  <div className="animate-fadeIn w-full max-w-xl relative" style={{background: 'linear-gradient(145deg, #1e2035 0%, #161829 100%)', border: '1px solid rgba(99,102,241,0.25)', borderRadius: '1.25rem', boxShadow: '0 30px 60px -10px rgba(0,0,0,0.6), 0 0 0 1px rgba(255,255,255,0.04) inset'}}>
+                    {/* Header gradient bar */}
+                    <div style={{height: '4px', background: 'linear-gradient(90deg, #6366f1, #8b5cf6, #ec4899)', borderRadius: '1.25rem 1.25rem 0 0'}} />
+
+                    <div className="p-7">
+                      {/* Title row */}
+                      <div className="flex items-start justify-between mb-6">
                         <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1">First Name</label>
-                          <input 
-                            type="text" required value={newFirstName} 
-                            onChange={(e) => setNewFirstName(e.target.value)}
-                            className="w-full px-3 py-2 rounded bg-white border border-slate-200 text-sm focus:outline-none focus:border-indigo-500" 
-                          />
+                          <div className="flex items-center gap-2.5 mb-1">
+                            <div style={{background: 'linear-gradient(135deg, #6366f1, #8b5cf6)', borderRadius: '0.5rem', padding: '6px', display: 'flex'}}>
+                              <svg width="16" height="16" fill="none" stroke="white" strokeWidth="2" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+                            </div>
+                            <h3 className="text-lg font-bold font-display" style={{color: '#f1f5f9'}}>Complete Your Profile</h3>
+                          </div>
+                          <p style={{color: '#94a3b8', fontSize: '0.8rem'}}>Fill in your details to activate your employee card</p>
                         </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1">Last Name</label>
-                          <input 
-                            type="text" required value={newLastName} 
-                            onChange={(e) => setNewLastName(e.target.value)}
-                            className="w-full px-3 py-2 rounded bg-white border border-slate-200 text-sm focus:outline-none focus:border-indigo-500" 
-                          />
-                        </div>
+                        <button
+                          onClick={() => setShowProfileForm(false)}
+                          style={{color: '#64748b', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '0.5rem', padding: '6px', cursor: 'pointer', transition: 'all 0.2s'}}
+                          onMouseOver={e => (e.currentTarget.style.color = '#f1f5f9')}
+                          onMouseOut={e => (e.currentTarget.style.color = '#64748b')}
+                        >
+                          <X size={16} />
+                        </button>
                       </div>
 
-                      <div className="grid grid-cols-2 gap-4">
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1">Email Address</label>
-                          <input 
-                            type="email" required value={newEmail} 
-                            onChange={(e) => setNewEmail(e.target.value)}
-                            className="w-full px-3 py-2 rounded bg-white border border-slate-200 text-sm focus:outline-none focus:border-indigo-500" 
-                          />
+                      <form onSubmit={handleCreateProfile} className="space-y-4">
+                        {/* Section label */}
+                        <p style={{color: '#6366f1', fontSize: '0.68rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.25rem'}}>Personal Information</p>
+                        
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label style={{display:'block', fontSize:'0.72rem', fontWeight:'600', color:'#94a3b8', marginBottom:'0.35rem', letterSpacing:'0.03em'}}>First Name <span style={{color:'#ef4444'}}>*</span></label>
+                            <input
+                              type="text" required value={newFirstName} placeholder="e.g. Amirtha"
+                              onChange={(e) => setNewFirstName(e.target.value)}
+                              style={{width:'100%', padding:'0.55rem 0.75rem', borderRadius:'0.5rem', border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.05)', color:'#f1f5f9', fontSize:'0.875rem', outline:'none', boxSizing:'border-box', transition:'border-color 0.2s'}}
+                              onFocus={e => (e.target.style.borderColor = '#6366f1')}
+                              onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                            />
+                          </div>
+                          <div>
+                            <label style={{display:'block', fontSize:'0.72rem', fontWeight:'600', color:'#94a3b8', marginBottom:'0.35rem', letterSpacing:'0.03em'}}>Last Name <span style={{color:'#ef4444'}}>*</span></label>
+                            <input
+                              type="text" required value={newLastName} placeholder="e.g. Gopinath"
+                              onChange={(e) => setNewLastName(e.target.value)}
+                              style={{width:'100%', padding:'0.55rem 0.75rem', borderRadius:'0.5rem', border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.05)', color:'#f1f5f9', fontSize:'0.875rem', outline:'none', boxSizing:'border-box', transition:'border-color 0.2s'}}
+                              onFocus={e => (e.target.style.borderColor = '#6366f1')}
+                              onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                            />
+                          </div>
                         </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1">Phone Number</label>
-                          <input 
-                            type="tel" required value={newPhone} 
-                            onChange={(e) => setNewPhone(e.target.value)}
-                            className="w-full px-3 py-2 rounded bg-white border border-slate-200 text-sm focus:outline-none focus:border-indigo-500" 
-                          />
-                        </div>
-                      </div>
 
-                      <div className="grid grid-cols-3 gap-3">
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1">Department</label>
-                          <select 
-                            value={newDept} onChange={(e) => setNewDept(e.target.value)}
-                            className="w-full px-3 py-2 rounded bg-white border border-slate-200 text-xs focus:outline-none focus:border-indigo-500 text-slate-700 dark:text-slate-300"
+                        <div className="grid grid-cols-2 gap-3">
+                          <div>
+                            <label style={{display:'block', fontSize:'0.72rem', fontWeight:'600', color:'#94a3b8', marginBottom:'0.35rem', letterSpacing:'0.03em'}}>Work Email <span style={{color:'#ef4444'}}>*</span></label>
+                            <input
+                              type="email" required value={newEmail} placeholder="name@company.com"
+                              onChange={(e) => setNewEmail(e.target.value)}
+                              style={{width:'100%', padding:'0.55rem 0.75rem', borderRadius:'0.5rem', border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.05)', color:'#f1f5f9', fontSize:'0.875rem', outline:'none', boxSizing:'border-box', transition:'border-color 0.2s'}}
+                              onFocus={e => (e.target.style.borderColor = '#6366f1')}
+                              onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                            />
+                          </div>
+                          <div>
+                            <label style={{display:'block', fontSize:'0.72rem', fontWeight:'600', color:'#94a3b8', marginBottom:'0.35rem', letterSpacing:'0.03em'}}>Phone Number <span style={{color:'#ef4444'}}>*</span></label>
+                            <input
+                              type="tel" required value={newPhone} placeholder="+91 98765 43210"
+                              onChange={(e) => setNewPhone(e.target.value)}
+                              style={{width:'100%', padding:'0.55rem 0.75rem', borderRadius:'0.5rem', border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.05)', color:'#f1f5f9', fontSize:'0.875rem', outline:'none', boxSizing:'border-box', transition:'border-color 0.2s'}}
+                              onFocus={e => (e.target.style.borderColor = '#6366f1')}
+                              onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Divider */}
+                        <div style={{borderTop: '1px solid rgba(255,255,255,0.05)', margin: '0.5rem 0'}} />
+                        <p style={{color: '#8b5cf6', fontSize: '0.68rem', fontWeight: '700', letterSpacing: '0.1em', textTransform: 'uppercase', marginBottom: '0.25rem'}}>Role & Compensation</p>
+
+                        <div className="grid grid-cols-3 gap-3">
+                          <div>
+                            <label style={{display:'block', fontSize:'0.72rem', fontWeight:'600', color:'#94a3b8', marginBottom:'0.35rem', letterSpacing:'0.03em'}}>Department <span style={{color:'#ef4444'}}>*</span></label>
+                            <select
+                              required value={newDept} onChange={(e) => setNewDept(e.target.value)}
+                              style={{width:'100%', padding:'0.55rem 0.75rem', borderRadius:'0.5rem', border:'1px solid rgba(255,255,255,0.08)', background:'rgba(30,32,53,0.98)', color: newDept ? '#f1f5f9' : '#64748b', fontSize:'0.8rem', outline:'none', boxSizing:'border-box', cursor:'pointer', transition:'border-color 0.2s'}}
+                              onFocus={e => (e.target.style.borderColor = '#8b5cf6')}
+                              onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                            >
+                              <option value="" disabled style={{color:'#64748b'}}>Select dept.</option>
+                              {setupDepts.map((d, i) => (
+                                <option key={i} value={d} style={{background:'#1e2035', color:'#f1f5f9'}}>{d}</option>
+                              ))}
+                            </select>
+                          </div>
+                          <div>
+                            <label style={{display:'block', fontSize:'0.72rem', fontWeight:'600', color:'#94a3b8', marginBottom:'0.35rem', letterSpacing:'0.03em'}}>Job Title <span style={{color:'#ef4444'}}>*</span></label>
+                            <input
+                              type="text" required value={newPos} placeholder="e.g. Sr. Engineer"
+                              onChange={(e) => setNewPos(e.target.value)}
+                              style={{width:'100%', padding:'0.55rem 0.75rem', borderRadius:'0.5rem', border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.05)', color:'#f1f5f9', fontSize:'0.875rem', outline:'none', boxSizing:'border-box', transition:'border-color 0.2s'}}
+                              onFocus={e => (e.target.style.borderColor = '#8b5cf6')}
+                              onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                            />
+                          </div>
+                          <div>
+                            <label style={{display:'block', fontSize:'0.72rem', fontWeight:'600', color:'#94a3b8', marginBottom:'0.35rem', letterSpacing:'0.03em'}}>Monthly Salary (₹) <span style={{color:'#ef4444'}}>*</span></label>
+                            <input
+                              type="number" required value={newSalary} placeholder="e.g. 85000" min="0"
+                              onChange={(e) => setNewSalary(e.target.value)}
+                              style={{width:'100%', padding:'0.55rem 0.75rem', borderRadius:'0.5rem', border:'1px solid rgba(255,255,255,0.08)', background:'rgba(255,255,255,0.05)', color:'#f1f5f9', fontSize:'0.875rem', outline:'none', boxSizing:'border-box', transition:'border-color 0.2s'}}
+                              onFocus={e => (e.target.style.borderColor = '#8b5cf6')}
+                              onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-3 justify-end" style={{paddingTop: '1rem', borderTop: '1px solid rgba(255,255,255,0.05)', marginTop: '0.5rem'}}>
+                          <button
+                            type="button" onClick={() => setShowProfileForm(false)}
+                            style={{padding:'0.6rem 1.25rem', borderRadius:'0.5rem', border:'1px solid rgba(255,255,255,0.1)', background:'rgba(255,255,255,0.04)', color:'#94a3b8', fontSize:'0.875rem', fontWeight:'600', cursor:'pointer', transition:'all 0.2s'}}
+                            onMouseOver={e => { e.currentTarget.style.background='rgba(255,255,255,0.08)'; e.currentTarget.style.color='#f1f5f9'; }}
+                            onMouseOut={e => { e.currentTarget.style.background='rgba(255,255,255,0.04)'; e.currentTarget.style.color='#94a3b8'; }}
                           >
-                            {setupDepts.map((d, i) => (
-                              <option key={i} value={d}>{d}</option>
-                            ))}
-                          </select>
+                            Cancel
+                          </button>
+                          <button
+                            type="submit" disabled={loading}
+                            style={{padding:'0.6rem 1.5rem', borderRadius:'0.5rem', border:'none', background:'linear-gradient(135deg, #6366f1, #8b5cf6)', color:'#fff', fontSize:'0.875rem', fontWeight:'700', cursor:'pointer', transition:'all 0.2s', boxShadow:'0 4px 15px rgba(99,102,241,0.4)', opacity: loading ? 0.7 : 1}}
+                          >
+                            {loading ? 'Saving...' : '✓ Save Profile'}
+                          </button>
                         </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1">Position</label>
-                          <input 
-                            type="text" required value={newPos} 
-                            onChange={(e) => setNewPos(e.target.value)}
-                            className="w-full px-3 py-2 rounded bg-white border border-slate-200 text-sm focus:outline-none focus:border-indigo-500" 
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-xs font-semibold text-slate-500 mb-1">Monthly Salary ($)</label>
-                          <input 
-                            type="number" required value={newSalary} 
-                            onChange={(e) => setNewSalary(e.target.value)}
-                            className="w-full px-3 py-2 rounded bg-white border border-slate-200 text-sm focus:outline-none focus:border-indigo-500" 
-                          />
-                        </div>
-                      </div>
-
-                      <div className="flex gap-3 justify-end pt-4">
-                        <button 
-                          type="button" onClick={() => setShowProfileForm(false)}
-                          className="px-4 py-2 rounded bg-slate-100 text-slate-550 text-sm font-semibold cursor-pointer dark:bg-slate-700"
-                        >
-                          Cancel
-                        </button>
-                        <button 
-                          type="submit"
-                          className="px-4 py-2 rounded btn-primary text-sm font-semibold cursor-pointer"
-                        >
-                          Save Profile
-                        </button>
-                      </div>
-                    </form>
+                      </form>
+                    </div>
                   </div>
                 </div>
               )}
