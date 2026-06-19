@@ -1,0 +1,35 @@
+spring:
+  application:
+    name: nexushr-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/nexushr
+    username: nexushr_user
+    password: nexushr_password
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  data:
+    redis:
+      host: localhost
+      port: 6379
+
+server:
+  port: 8080
+  servlet:
+    context-path: /api
+
+# Custom security / jwt keys
+security:
+  jwt:
+    # Base64-encoded secret key (at least 256 bits). Here is a pre-generated valid secret for development:
+    secret-key: dGhpcy1pcy1hLXNlY3VyZS1hbmQtc3VmaWNpZW50bHktbG9uZy1zZWNyZXQta2V5LWZvci1uZXh1c2hyLWFwcC1kZXZlbG9wbWVudC1vbmx5IQ==
+    expiration-time: 86400000 # 24 hours in milliseconds
