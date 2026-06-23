@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import com.nexushr.core.model.Role;
 
 @Service
 public class EmployeeService {
@@ -22,9 +24,20 @@ public class EmployeeService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
     public Employee createEmployee(Employee employee, String username) {
         User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new IllegalArgumentException("Associated User profile not found"));
+                .orElseGet(() -> {
+                    User newUser = User.builder()
+                            .username(username)
+                            .password(passwordEncoder.encode("password123"))
+                            .email(employee.getEmail())
+                            .role(Role.EMPLOYEE)
+                            .build();
+                    return userRepository.save(newUser);
+                });
 
         if (employeeRepository.findByUser(user).isPresent()) {
             throw new IllegalArgumentException("Employee profile already exists for this user account");
@@ -32,6 +45,14 @@ public class EmployeeService {
 
         employee.setUser(user);
         employee.setStatus(EmployeeStatus.ACTIVE);
+        
+        if (employee.getManager() != null && employee.getManager().getId() != null) {
+            Employee manager = getEmployeeById(employee.getManager().getId());
+            employee.setManager(manager);
+        } else {
+            employee.setManager(null);
+        }
+        
         if (employee.getPerformanceRating() == null) {
             employee.setPerformanceRating(3.0); // Neutral default rating
         }
@@ -64,6 +85,13 @@ public class EmployeeService {
         employee.setDepartment(updatedEmployee.getDepartment());
         employee.setPosition(updatedEmployee.getPosition());
         employee.setSalary(updatedEmployee.getSalary());
+        
+        if (updatedEmployee.getManager() != null && updatedEmployee.getManager().getId() != null) {
+            Employee manager = getEmployeeById(updatedEmployee.getManager().getId());
+            employee.setManager(manager);
+        } else {
+            employee.setManager(null);
+        }
         if (updatedEmployee.getStatus() != null) {
             employee.setStatus(updatedEmployee.getStatus());
         }
@@ -96,5 +124,15 @@ public class EmployeeService {
                 "averagePerformance", avgPerformance,
                 "departmentDistribution", departmentDistribution
         );
+    }
+
+    public List<Employee> getTeammates(Long managerId) {
+        return employeeRepository.findByManager_Id(managerId);
+    }
+
+    public void deleteEmployee(Long id) {
+        Employee employee = getEmployeeById(id);
+        employee.setStatus(EmployeeStatus.TERMINATED);
+        employeeRepository.save(employee);
     }
 }

@@ -17,6 +17,11 @@ public class Employee {
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     private User user;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "manager_id")
+    @com.fasterxml.jackson.annotation.JsonIgnoreProperties({"manager"})
+    private Employee manager;
+
     @Column(name = "first_name", nullable = false)
     private String firstName;
 
@@ -50,11 +55,12 @@ public class Employee {
     // Constructors
     public Employee() {}
 
-    public Employee(Long id, User user, String firstName, String lastName, String email, String phone, 
+    public Employee(Long id, User user, Employee manager, String firstName, String lastName, String email, String phone, 
                     String department, String position, LocalDate hireDate, Double salary, 
                     EmployeeStatus status, Double performanceRating) {
         this.id = id;
         this.user = user;
+        this.manager = manager;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
@@ -73,6 +79,9 @@ public class Employee {
 
     public User getUser() { return user; }
     public void setUser(User user) { this.user = user; }
+
+    public Employee getManager() { return manager; }
+    public void setManager(Employee manager) { this.manager = manager; }
 
     public String getFirstName() { return firstName; }
     public void setFirstName(String firstName) { this.firstName = firstName; }
@@ -112,6 +121,7 @@ public class Employee {
     public static class EmployeeBuilder {
         private Long id;
         private User user;
+        private Employee manager;
         private String firstName;
         private String lastName;
         private String email;
@@ -127,6 +137,7 @@ public class Employee {
 
         public EmployeeBuilder id(Long id) { this.id = id; return this; }
         public EmployeeBuilder user(User user) { this.user = user; return this; }
+        public EmployeeBuilder manager(Employee manager) { this.manager = manager; return this; }
         public EmployeeBuilder firstName(String firstName) { this.firstName = firstName; return this; }
         public EmployeeBuilder lastName(String lastName) { this.lastName = lastName; return this; }
         public EmployeeBuilder email(String email) { this.email = email; return this; }
@@ -139,7 +150,7 @@ public class Employee {
         public EmployeeBuilder performanceRating(Double performanceRating) { this.performanceRating = performanceRating; return this; }
 
         public Employee build() {
-            return new Employee(id, user, firstName, lastName, email, phone, department, position, hireDate, salary, status, performanceRating);
+            return new Employee(id, user, manager, firstName, lastName, email, phone, department, position, hireDate, salary, status, performanceRating);
         }
     }
 }

@@ -49,6 +49,7 @@ export default function App() {
   const [newDept, setNewDept] = useState('');
   const [newPos, setNewPos] = useState('');
   const [newSalary, setNewSalary] = useState('');
+  const [newManagerId, setNewManagerId] = useState('');
 
   // Daily attendance state
   const [todayAttendance, setTodayAttendance] = useState<any | null>(null);
@@ -89,6 +90,8 @@ export default function App() {
   const [payrollAll, setPayrollAll] = useState<any[]>([]);
   const [metrics, setMetrics] = useState<any | null>(null);
   const [selectedTeamMember, setSelectedTeamMember] = useState<any | null>(null);
+  const [isEditingEmployee, setIsEditingEmployee] = useState(false);
+  const [myTeammates, setMyTeammates] = useState<any[]>([]);
 
   // Unified Search State
   const [searchQuery, setSearchQuery] = useState('');
@@ -281,16 +284,21 @@ export default function App() {
         phone: newPhone,
         department: newDept,
         position: newPos,
-        salary: parseFloat(newSalary)
+        salary: parseFloat(newSalary),
+        ...(newManagerId ? { manager: { id: parseInt(newManagerId) } } : {})
       };
       
-      const newEmp = await api.createProfile(payload);
-      localStorage.setItem('employeeId', newEmp.id.toString());
-      if (session) {
-        setSession({ ...session, employeeId: newEmp.id });
+      const newEmp = await api.createProfile(payload, usernameInput);
+      
+      // If the user created a profile for themselves, update local storage
+      if (!usernameInput || session?.username === usernameInput) {
+        localStorage.setItem('employeeId', newEmp.id.toString());
+        if (session) {
+          setSession({ ...session, employeeId: newEmp.id });
+        }
+        setProfile(newEmp);
+        setShowProfileForm(false);
       }
-      setProfile(newEmp);
-      setShowProfileForm(false);
       
       // Auto complete "Add First Employee" onboarding step if we created profile
       markStepCompleted(5);
@@ -302,11 +310,55 @@ export default function App() {
       setNewDept('');
       setNewPos('');
       setNewSalary('');
+      setNewManagerId('');
+      setUsernameInput('');
 
       showToast('Profile card generated successfully!');
       loadTabContext();
     } catch (err: any) {
       showToast(err.message || 'Failed to establish profile', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleUpdateEmployee = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedTeamMember) return;
+    setLoading(true);
+    try {
+      const payload = {
+        firstName: newFirstName,
+        lastName: newLastName,
+        email: newEmail,
+        phone: newPhone,
+        department: newDept,
+        position: newPos,
+        salary: parseFloat(newSalary),
+        ...(newManagerId ? { manager: { id: parseInt(newManagerId) } } : {})
+      };
+      
+      await api.updateProfile(selectedTeamMember.id, payload);
+      showToast('Profile updated successfully!');
+      setIsEditingEmployee(false);
+      loadTabContext(); // Refresh directory
+    } catch (err: any) {
+      showToast(err.message || 'Failed to update profile', 'error');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteEmployee = async () => {
+    if (!selectedTeamMember || !window.confirm(`Are you sure you want to terminate ${selectedTeamMember.firstName}?`)) return;
+    setLoading(true);
+    try {
+      await api.deleteProfile(selectedTeamMember.id);
+      showToast('Employee terminated successfully!');
+      setSelectedTeamMember(null);
+      loadTabContext();
+    } catch (err: any) {
+      showToast(err.message || 'Failed to terminate employee', 'error');
     } finally {
       setLoading(false);
     }
@@ -320,6 +372,13 @@ export default function App() {
         try {
           const prof = await api.getMyProfile();
           setProfile(prof);
+          if (prof.manager) {
+            const team = await api.getTeammates(prof.manager.id);
+            setMyTeammates(team.filter((t: any) => t.id !== prof.id));
+          } else if (session.role === 'MANAGER') {
+            const team = await api.getTeammates(prof.id);
+            setMyTeammates(team);
+          }
         } catch {
           // No profile yet
         }
@@ -337,7 +396,8 @@ export default function App() {
           const team = await api.getAllEmployees();
           setEmployeesList(team);
           const allLeaves = await api.getAllLeaves();
-          setLeaveRequestsPending(allLeaves.filter(l => l.status === 'PENDING'));
+          const targetStatus = session.role === 'MANAGER' ? 'PENDING_MANAGER_APPROVAL' : session.role === 'HR' ? 'PENDING_HR_APPROVAL' : 'PENDING_ADMIN_APPROVAL';
+          setLeaveRequestsPending(allLeaves.filter(l => l.status === targetStatus));
         }
       } else if (activeTab === 'leaves') {
         if (session.employeeId) {
@@ -346,7 +406,8 @@ export default function App() {
         }
         if (session.role === 'MANAGER' || session.role === 'ADMIN' || session.role === 'HR') {
           const allLeaves = await api.getAllLeaves();
-          setLeaveRequestsPending(allLeaves.filter(l => l.status === 'PENDING'));
+          const targetStatus = session.role === 'MANAGER' ? 'PENDING_MANAGER_APPROVAL' : session.role === 'HR' ? 'PENDING_HR_APPROVAL' : 'PENDING_ADMIN_APPROVAL';
+          setLeaveRequestsPending(allLeaves.filter(l => l.status === targetStatus));
         }
       } else if (activeTab === 'payroll') {
         if (session.employeeId) {
@@ -1011,6 +1072,7 @@ export default function App() {
                       <option value="EMPLOYEE">Employee</option>
                       <option value="MANAGER">Manager</option>
                       <option value="HR">HR Officer</option>
+                      <option value="ADMIN">Administrator</option>
                     </select>
                   </div>
                 )}
@@ -1060,6 +1122,23 @@ export default function App() {
                       <h4 className="text-xs font-bold text-slate-800 dark:text-slate-100 truncate">{profile.firstName} {profile.lastName}</h4>
                       <p className="text-[10px] text-slate-550 truncate">{profile.position}</p>
                     </div>
+                  </div>
+                  {/* Hierarchy Info */}
+                  <div className="mt-3 pt-2 border-t border-slate-200 dark:border-slate-700 space-y-1">
+                    {profile.manager ? (
+                      <p className="text-[10px] text-slate-500 truncate">
+                        <span className="font-semibold text-slate-600 dark:text-slate-400">Reporting to:</span> {profile.manager.firstName} {profile.manager.lastName}
+                      </p>
+                    ) : (
+                      <p className="text-[10px] text-slate-500 truncate">
+                        <span className="font-semibold text-slate-600 dark:text-slate-400">Reporting to:</span> Top Level
+                      </p>
+                    )}
+                    {(profile.manager || session.role === 'MANAGER') && (
+                      <p className="text-[10px] text-slate-500 truncate">
+                        <span className="font-semibold text-slate-600 dark:text-slate-400">Teammates:</span> {myTeammates.length} members
+                      </p>
+                    )}
                   </div>
                 </div>
               ) : session.employeeId ? (
@@ -1286,6 +1365,23 @@ export default function App() {
                               onFocus={e => (e.target.style.borderColor = '#8b5cf6')}
                               onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
                             />
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 gap-3">
+                          <div>
+                            <label style={{display:'block', fontSize:'0.72rem', fontWeight:'600', color:'#94a3b8', marginBottom:'0.35rem', letterSpacing:'0.03em'}}>Manager (TL)</label>
+                            <select
+                              value={newManagerId} onChange={(e) => setNewManagerId(e.target.value)}
+                              style={{width:'100%', padding:'0.55rem 0.75rem', borderRadius:'0.5rem', border:'1px solid rgba(255,255,255,0.08)', background:'rgba(30,32,53,0.98)', color: newManagerId ? '#f1f5f9' : '#64748b', fontSize:'0.8rem', outline:'none', boxSizing:'border-box', cursor:'pointer', transition:'border-color 0.2s'}}
+                              onFocus={e => (e.target.style.borderColor = '#8b5cf6')}
+                              onBlur={e => (e.target.style.borderColor = 'rgba(255,255,255,0.08)')}
+                            >
+                              <option value="" style={{color:'#64748b'}}>None (Self / Top Level)</option>
+                              {employeesList.map((emp) => (
+                                <option key={emp.id} value={emp.id} style={{background:'#1e2035', color:'#f1f5f9'}}>{emp.firstName} {emp.lastName} ({emp.position})</option>
+                              ))}
+                            </select>
                           </div>
                         </div>
 
@@ -1773,9 +1869,9 @@ export default function App() {
                                     <td className="py-3">
                                       <span className={`px-2 py-0.5 rounded text-[10px] font-semibold uppercase ${
                                         req.status === 'APPROVED' ? 'badge-pastel-green' :
-                                        req.status === 'PENDING' ? 'badge-pastel-amber' : 'badge-pastel-rose'
+                                        req.status.includes('PENDING') ? 'badge-pastel-amber' : 'badge-pastel-rose'
                                       }`}>
-                                        {req.status}
+                                        {req.status.replace(/_/g, ' ')}
                                       </span>
                                     </td>
                                   </tr>
@@ -2119,11 +2215,27 @@ export default function App() {
                             className="px-3 py-2 rounded border border-slate-200 text-xs focus:outline-none dark:bg-slate-700 dark:border-slate-600" 
                           />
                         </div>
-                        <input 
-                          type="number" required placeholder="Monthly Salary ($)" value={newSalary} 
-                          onChange={(e) => setNewSalary(e.target.value)}
-                          className="w-full px-3 py-2 rounded border border-slate-200 text-xs focus:outline-none dark:bg-slate-700 dark:border-slate-600" 
-                        />
+                        <div className="grid grid-cols-2 gap-2">
+                          <input 
+                            type="number" required placeholder="Monthly Salary ($)" value={newSalary} 
+                            onChange={(e) => setNewSalary(e.target.value)}
+                            className="w-full px-3 py-2 rounded border border-slate-200 text-xs focus:outline-none dark:bg-slate-700 dark:border-slate-600" 
+                          />
+                          <select 
+                            value={newManagerId} onChange={(e) => setNewManagerId(e.target.value)}
+                            className="px-3 py-2 rounded border border-slate-200 text-xs focus:outline-none dark:bg-slate-700 dark:border-slate-600 text-slate-700 dark:text-slate-300"
+                          >
+                            <option value="">Manager (TL) - Optional</option>
+                            {employeesList
+                              .filter(emp => emp.user?.role === 'MANAGER' || emp.user?.role === 'ADMIN' || emp.user?.role === 'HR')
+                              .map((manager) => (
+                                <option key={manager.id} value={manager.id}>
+                                  {manager.firstName} {manager.lastName}
+                                </option>
+                              ))
+                            }
+                          </select>
+                        </div>
                         
                         <div className="pt-2">
                           <label className="block text-[10px] text-indigo-600 font-bold mb-1 uppercase tracking-wider">Link Account Username</label>
@@ -2164,6 +2276,18 @@ export default function App() {
                                 key={emp.id} 
                                 onClick={() => {
                                   setSelectedTeamMember(emp);
+                                  setIsEditingEmployee(false);
+                                  
+                                  // Pre-fill edit states
+                                  setNewFirstName(emp.firstName);
+                                  setNewLastName(emp.lastName);
+                                  setNewEmail(emp.email);
+                                  setNewPhone(emp.phone);
+                                  setNewDept(emp.department);
+                                  setNewPos(emp.position);
+                                  setNewSalary(emp.salary.toString());
+                                  setNewManagerId(emp.manager?.id ? emp.manager.id.toString() : '');
+                                  
                                   inspectEmployeeAttrition(emp.id);
                                   inspectEmployeeGoals(emp.id);
                                 }}
@@ -2196,6 +2320,92 @@ export default function App() {
                       {/* Performance review submission */}
                       {selectedTeamMember && (
                         <div className="space-y-6">
+                          
+                          {/* Profile Actions */}
+                          <div className="glass-card p-6 border-t-2 border-indigo-400 animate-fadeIn bg-white dark:bg-slate-850 dark:border-slate-700">
+                            <div className="flex justify-between items-center">
+                              <h3 className="text-lg font-bold text-slate-855 dark:text-white">
+                                {selectedTeamMember.firstName} {selectedTeamMember.lastName}
+                              </h3>
+                              <div className="flex gap-2">
+                                <button
+                                  onClick={() => setIsEditingEmployee(!isEditingEmployee)}
+                                  className="px-3 py-1.5 btn-secondary text-xs rounded shadow-sm"
+                                >
+                                  {isEditingEmployee ? 'Cancel Edit' : 'Edit Profile'}
+                                </button>
+                                <button
+                                  onClick={handleDeleteEmployee}
+                                  className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white font-semibold text-xs rounded shadow-sm transition-colors"
+                                >
+                                  Terminate
+                                </button>
+                              </div>
+                            </div>
+                            
+                            {isEditingEmployee && (
+                              <form onSubmit={handleUpdateEmployee} className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700 space-y-3">
+                                <div className="grid grid-cols-2 gap-3">
+                                  <input 
+                                    type="text" required placeholder="First Name" value={newFirstName} 
+                                    onChange={(e) => setNewFirstName(e.target.value)}
+                                    className="w-full px-3 py-2 rounded border border-slate-200 text-xs focus:outline-none dark:bg-slate-700 dark:border-slate-600" 
+                                  />
+                                  <input 
+                                    type="text" required placeholder="Last Name" value={newLastName} 
+                                    onChange={(e) => setNewLastName(e.target.value)}
+                                    className="w-full px-3 py-2 rounded border border-slate-200 text-xs focus:outline-none dark:bg-slate-700 dark:border-slate-600" 
+                                  />
+                                  <input 
+                                    type="email" required placeholder="Work Email" value={newEmail} 
+                                    onChange={(e) => setNewEmail(e.target.value)}
+                                    className="w-full px-3 py-2 rounded border border-slate-200 text-xs focus:outline-none dark:bg-slate-700 dark:border-slate-600" 
+                                  />
+                                  <input 
+                                    type="text" required placeholder="Phone Number" value={newPhone} 
+                                    onChange={(e) => setNewPhone(e.target.value)}
+                                    className="w-full px-3 py-2 rounded border border-slate-200 text-xs focus:outline-none dark:bg-slate-700 dark:border-slate-600" 
+                                  />
+                                  <input 
+                                    type="text" required placeholder="Department" value={newDept} 
+                                    onChange={(e) => setNewDept(e.target.value)}
+                                    className="w-full px-3 py-2 rounded border border-slate-200 text-xs focus:outline-none dark:bg-slate-700 dark:border-slate-600" 
+                                  />
+                                  <input 
+                                    type="text" required placeholder="Position Title" value={newPos} 
+                                    onChange={(e) => setNewPos(e.target.value)}
+                                    className="w-full px-3 py-2 rounded border border-slate-200 text-xs focus:outline-none dark:bg-slate-700 dark:border-slate-600" 
+                                  />
+                                  <input 
+                                    type="number" required placeholder="Monthly Salary ($)" value={newSalary} 
+                                    onChange={(e) => setNewSalary(e.target.value)}
+                                    className="w-full px-3 py-2 rounded border border-slate-200 text-xs focus:outline-none dark:bg-slate-700 dark:border-slate-600" 
+                                  />
+                                  <select 
+                                    value={newManagerId} onChange={(e) => setNewManagerId(e.target.value)}
+                                    className="px-3 py-2 rounded border border-slate-200 text-xs focus:outline-none dark:bg-slate-700 dark:border-slate-600 text-slate-700 dark:text-slate-300"
+                                  >
+                                    <option value="">Manager (TL) - Optional</option>
+                                    {employeesList
+                                      .filter(emp => emp.id !== selectedTeamMember.id && (emp.user?.role === 'MANAGER' || emp.user?.role === 'ADMIN' || emp.user?.role === 'HR'))
+                                      .map((manager) => (
+                                        <option key={manager.id} value={manager.id}>
+                                          {manager.firstName} {manager.lastName}
+                                        </option>
+                                      ))
+                                    }
+                                  </select>
+                                </div>
+                                <button 
+                                  type="submit"
+                                  className="w-full mt-2 py-2 btn-primary font-semibold text-xs cursor-pointer shadow-sm"
+                                >
+                                  Save Changes
+                                </button>
+                              </form>
+                            )}
+                          </div>
+
                           {/* Current Goals list for this selected employee */}
                           <div className="glass-card p-6 border-t-2 border-indigo-400 animate-fadeIn bg-white dark:bg-slate-850 dark:border-slate-700 accent-border-lavender">
                             <h3 className="text-lg font-bold text-slate-855 dark:text-white mb-4">

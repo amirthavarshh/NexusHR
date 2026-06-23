@@ -27,14 +27,32 @@ public class LeaveService {
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
 
+        Role userRole = employee.getUser().getRole();
+        LeaveStatus initialStatus;
+        if (userRole == Role.ADMIN) {
+            initialStatus = LeaveStatus.APPROVED;
+        } else if (userRole == Role.HR) {
+            initialStatus = LeaveStatus.PENDING_ADMIN_APPROVAL;
+        } else if (userRole == Role.MANAGER) {
+            initialStatus = LeaveStatus.PENDING_HR_APPROVAL;
+        } else {
+            initialStatus = LeaveStatus.PENDING_MANAGER_APPROVAL;
+        }
+
         LeaveRequest request = LeaveRequest.builder()
                 .employee(employee)
                 .startDate(dto.getStartDate())
                 .endDate(dto.getEndDate())
                 .reason(dto.getReason())
                 .type(LeaveType.valueOf(dto.getType().toUpperCase()))
-                .status(LeaveStatus.PENDING)
+                .status(initialStatus)
                 .build();
+
+        if (initialStatus == LeaveStatus.APPROVED) {
+            request.setApprovedBy(username);
+            employee.setStatus(EmployeeStatus.ON_LEAVE);
+            employeeRepository.save(employee);
+        }
 
         return leaveRequestRepository.save(request);
     }
@@ -43,13 +61,35 @@ public class LeaveService {
         LeaveRequest request = leaveRequestRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Leave request not found"));
 
-        request.setStatus(LeaveStatus.APPROVED);
+        Employee approver = employeeRepository.findByUser_Username(managerUsername)
+                .orElseThrow(() -> new IllegalArgumentException("Approver profile not found"));
+        Role approverRole = approver.getUser().getRole();
+        LeaveStatus currentStatus = request.getStatus();
+
+        if (approverRole == Role.MANAGER && currentStatus == LeaveStatus.PENDING_MANAGER_APPROVAL) {
+            if (request.getEmployee().getManager() == null || !request.getEmployee().getManager().getId().equals(approver.getId())) {
+                throw new IllegalArgumentException("Manager can only approve leave for direct reports");
+            }
+            request.setStatus(LeaveStatus.PENDING_HR_APPROVAL);
+        } else if (approverRole == Role.HR && currentStatus == LeaveStatus.PENDING_HR_APPROVAL) {
+            request.setStatus(LeaveStatus.APPROVED);
+        } else if (approverRole == Role.ADMIN && currentStatus == LeaveStatus.PENDING_ADMIN_APPROVAL) {
+            request.setStatus(LeaveStatus.APPROVED);
+        } else if (approverRole == Role.ADMIN) {
+            // Admin override
+            request.setStatus(LeaveStatus.APPROVED);
+        } else {
+            throw new IllegalArgumentException("You do not have permission to approve this leave at its current stage");
+        }
+
         request.setApprovedBy(managerUsername);
 
-        // Transition employee status if the leave is currently active
-        Employee employee = request.getEmployee();
-        employee.setStatus(EmployeeStatus.ON_LEAVE);
-        employeeRepository.save(employee);
+        if (request.getStatus() == LeaveStatus.APPROVED) {
+            // Transition employee status if the leave is currently active
+            Employee employee = request.getEmployee();
+            employee.setStatus(EmployeeStatus.ON_LEAVE);
+            employeeRepository.save(employee);
+        }
 
         return leaveRequestRepository.save(request);
     }

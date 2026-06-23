@@ -56,8 +56,9 @@ export const api = {
     return handleResponse<any>(res);
   },
 
-  async createProfile(payload: any) {
-    const res = await fetch(`${BASE_URL}/employees`, {
+  async createProfile(payload: any, targetUsername?: string) {
+    const query = targetUsername ? `?username=${encodeURIComponent(targetUsername)}` : '';
+    const res = await fetch(`${BASE_URL}/employees${query}`, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(payload)
@@ -74,6 +75,15 @@ export const api = {
     return handleResponse<any>(res);
   },
 
+  async deleteProfile(id: number) {
+    const res = await fetch(`${BASE_URL}/employees/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    if (res.status === 204) return true;
+    return handleResponse<any>(res);
+  },
+
   async getAllEmployees() {
     const res = await fetch(`${BASE_URL}/employees`, {
       headers: getHeaders()
@@ -86,6 +96,13 @@ export const api = {
       headers: getHeaders()
     });
     return handleResponse<any>(res);
+  },
+
+  async getTeammates(managerId: number) {
+    const res = await fetch(`${BASE_URL}/employees/manager/${managerId}/teammates`, {
+      headers: getHeaders()
+    });
+    return handleResponse<any[]>(res);
   },
 
   // Attendance API

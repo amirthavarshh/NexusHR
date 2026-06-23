@@ -232,7 +232,7 @@ public class DataInitializer implements CommandLineRunner {
                     .endDate(LocalDate.now().plusDays(6))
                     .reason("Medical emergency")
                     .type(LeaveType.SICK)
-                    .status(LeaveStatus.PENDING)
+                    .status(LeaveStatus.PENDING_MANAGER_APPROVAL)
                     .build());
 
             // Bob has unpaid leave which will trigger payroll deduction

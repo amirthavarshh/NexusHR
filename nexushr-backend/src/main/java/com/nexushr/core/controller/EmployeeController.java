@@ -20,9 +20,11 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee, Authentication authentication) {
-        String username = authentication.getName();
-        return ResponseEntity.ok(employeeService.createEmployee(employee, username));
+    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee, 
+                                                   @RequestParam(required = false) String username, 
+                                                   Authentication authentication) {
+        String targetUsername = (username != null && !username.trim().isEmpty()) ? username : authentication.getName();
+        return ResponseEntity.ok(employeeService.createEmployee(employee, targetUsername));
     }
 
     @GetMapping
@@ -51,5 +53,17 @@ public class EmployeeController {
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'HR')")
     public ResponseEntity<Map<String, Object>> getWorkforceMetrics() {
         return ResponseEntity.ok(employeeService.getWorkforceMetrics());
+    }
+
+    @GetMapping("/manager/{id}/teammates")
+    public ResponseEntity<List<Employee>> getTeammates(@PathVariable Long id) {
+        return ResponseEntity.ok(employeeService.getTeammates(id));
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'HR')")
+    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
+        employeeService.deleteEmployee(id);
+        return ResponseEntity.noContent().build();
     }
 }
