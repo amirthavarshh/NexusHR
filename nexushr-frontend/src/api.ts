@@ -275,5 +275,102 @@ export const api = {
       body: JSON.stringify({ status })
     });
     return handleResponse<any>(res);
+  },
+
+  // Department API
+  async getAllDepartments() {
+    const res = await fetch(`${BASE_URL}/departments`, {
+      headers: getHeaders()
+    });
+    return handleResponse<any[]>(res);
+  },
+  async createDepartment(payload: any) {
+    const res = await fetch(`${BASE_URL}/departments`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(payload)
+    });
+    return handleResponse<any>(res);
+  },
+  async updateDepartment(id: number, payload: any) {
+    const res = await fetch(`${BASE_URL}/departments/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(payload)
+    });
+    return handleResponse<any>(res);
+  },
+  async deleteDepartment(id: number) {
+    const res = await fetch(`${BASE_URL}/departments/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return handleResponse<any>(res);
+  },
+
+  // Announcement API
+  async getAnnouncements() {
+    const res = await fetch(`${BASE_URL}/announcements`, {
+      headers: getHeaders()
+    });
+    return handleResponse<any[]>(res);
+  },
+  async createAnnouncement(payload: any) {
+    const res = await fetch(`${BASE_URL}/announcements`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(payload)
+    });
+    return handleResponse<any>(res);
+  },
+  async updateAnnouncement(id: number, payload: any) {
+    const res = await fetch(`${BASE_URL}/announcements/${id}`, {
+      method: 'PUT',
+      headers: getHeaders(),
+      body: JSON.stringify(payload)
+    });
+    return handleResponse<any>(res);
+  },
+  async deleteAnnouncement(id: number) {
+    const res = await fetch(`${BASE_URL}/announcements/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return handleResponse<any>(res);
+  },
+
+  // Notification API
+  async getMyNotifications() {
+    const res = await fetch(`${BASE_URL}/notifications`, {
+      headers: getHeaders()
+    });
+    return handleResponse<any[]>(res);
+  },
+  async getUnreadCount() {
+    const res = await fetch(`${BASE_URL}/notifications/unread-count`, {
+      headers: getHeaders()
+    });
+    return handleResponse<number>(res);
+  },
+  async markNotificationAsRead(id: number) {
+    const res = await fetch(`${BASE_URL}/notifications/${id}/read`, {
+      method: 'PUT',
+      headers: getHeaders()
+    });
+    return handleResponse<any>(res);
+  },
+  async markAllNotificationsAsRead() {
+    const res = await fetch(`${BASE_URL}/notifications/read-all`, {
+      method: 'PUT',
+      headers: getHeaders()
+    });
+    return handleResponse<any>(res);
+  },
+  async deleteNotification(id: number) {
+    const res = await fetch(`${BASE_URL}/notifications/${id}`, {
+      method: 'DELETE',
+      headers: getHeaders()
+    });
+    return handleResponse<any>(res);
   }
 };

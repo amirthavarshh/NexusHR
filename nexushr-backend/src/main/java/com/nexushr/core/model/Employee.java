@@ -33,8 +33,12 @@ public class Employee {
 
     private String phone;
 
-    @Column(nullable = false)
-    private String department;
+    @Column(name = "department", nullable = false)
+    private String department; // Legacy field
+
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JoinColumn(name = "department_id")
+    private Department departmentEntity;
 
     @Column(nullable = false)
     private String position;
@@ -66,6 +70,7 @@ public class Employee {
         this.email = email;
         this.phone = phone;
         this.department = department;
+        this.departmentEntity = null;
         this.position = position;
         this.hireDate = hireDate;
         this.salary = salary;
@@ -98,6 +103,9 @@ public class Employee {
     public String getDepartment() { return department; }
     public void setDepartment(String department) { this.department = department; }
 
+    public Department getDepartmentEntity() { return departmentEntity; }
+    public void setDepartmentEntity(Department departmentEntity) { this.departmentEntity = departmentEntity; }
+
     public String getPosition() { return position; }
     public void setPosition(String position) { this.position = position; }
 
@@ -127,6 +135,7 @@ public class Employee {
         private String email;
         private String phone;
         private String department;
+        private Department departmentEntity;
         private String position;
         private LocalDate hireDate;
         private Double salary;
@@ -143,6 +152,7 @@ public class Employee {
         public EmployeeBuilder email(String email) { this.email = email; return this; }
         public EmployeeBuilder phone(String phone) { this.phone = phone; return this; }
         public EmployeeBuilder department(String department) { this.department = department; return this; }
+        public EmployeeBuilder departmentEntity(Department departmentEntity) { this.departmentEntity = departmentEntity; return this; }
         public EmployeeBuilder position(String position) { this.position = position; return this; }
         public EmployeeBuilder hireDate(LocalDate hireDate) { this.hireDate = hireDate; return this; }
         public EmployeeBuilder salary(Double salary) { this.salary = salary; return this; }
@@ -150,7 +160,9 @@ public class Employee {
         public EmployeeBuilder performanceRating(Double performanceRating) { this.performanceRating = performanceRating; return this; }
 
         public Employee build() {
-            return new Employee(id, user, manager, firstName, lastName, email, phone, department, position, hireDate, salary, status, performanceRating);
+            Employee emp = new Employee(id, user, manager, firstName, lastName, email, phone, department, position, hireDate, salary, status, performanceRating);
+            emp.setDepartmentEntity(this.departmentEntity);
+            return emp;
         }
     }
 }

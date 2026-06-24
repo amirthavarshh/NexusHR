@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { 
   Users, Calendar, CreditCard, Award, BrainCircuit, LogOut, 
   Clock, CheckCircle, AlertTriangle, Play, Check, X, Plus, 
-  RefreshCw, Sparkles, Search, Moon, Sun, Bell, 
+  RefreshCw, Sparkles, Search, Moon, Sun, 
   ChevronRight, Upload, Settings, FileText
 } from 'lucide-react';
 import { 
@@ -11,9 +11,13 @@ import {
   YAxis, Tooltip, Legend, Bar
 } from 'recharts';
 import { api } from './api';
+import { NotificationBell } from './components/NotificationBell';
+import { AnnouncementBoard } from './components/AnnouncementBoard';
+import { DepartmentDashboard } from './components/DepartmentDashboard';
 
 // Interface types
 interface UserSession {
+  id: number;
   token: string;
   username: string;
   email: string;
@@ -150,9 +154,11 @@ export default function App() {
     const savedEmail = localStorage.getItem('email');
     const savedRole = localStorage.getItem('role');
     const savedEmpId = localStorage.getItem('employeeId');
+    const savedId = localStorage.getItem('id');
 
-    if (savedToken && savedUsername && savedRole) {
+    if (savedToken && savedUsername && savedRole && savedId) {
       const activeSession: UserSession = {
+        id: parseInt(savedId),
         token: savedToken,
         username: savedUsername,
         email: savedEmail || '',
@@ -181,6 +187,7 @@ export default function App() {
     localStorage.removeItem('email');
     localStorage.removeItem('role');
     localStorage.removeItem('employeeId');
+    localStorage.removeItem('id');
     setSession(null);
     setProfile(null);
     setTodayAttendance(null);
@@ -215,11 +222,13 @@ export default function App() {
       localStorage.setItem('username', res.username);
       localStorage.setItem('email', res.email);
       localStorage.setItem('role', res.role);
+      localStorage.setItem('id', res.id.toString());
       if (res.employeeId) {
         localStorage.setItem('employeeId', res.employeeId.toString());
       }
 
       setSession({
+        id: res.id,
         token: res.token,
         username: res.username,
         email: res.email,
@@ -253,8 +262,10 @@ export default function App() {
       localStorage.setItem('username', res.username);
       localStorage.setItem('email', res.email);
       localStorage.setItem('role', res.role);
+      localStorage.setItem('id', res.id.toString());
 
       setSession({
+        id: res.id,
         token: res.token,
         username: res.username,
         email: res.email,
@@ -960,8 +971,7 @@ export default function App() {
             <>
               {/* Notification icon */}
               <div className="relative cursor-pointer p-1.5 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 text-slate-500">
-                <Bell size={18} />
-                <span className="absolute top-0.5 right-0.5 w-2 h-2 rounded-full bg-red-500" />
+                <NotificationBell userId={session.id} />
               </div>
 
               {/* User profile dropdown & signout */}
@@ -1475,6 +1485,11 @@ export default function App() {
                       </div>
                       <span className="text-2xl font-extrabold text-slate-800 dark:text-white mt-4">{completedSteps.length} / 8</span>
                     </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 animate-fadeIn">
+                    <AnnouncementBoard />
+                    <DepartmentDashboard isAdmin={session.role === 'ADMIN' || session.role === 'HR'} />
                   </div>
 
                   {/* Onboarding Checklist Section (Get Started With Your Workspace) */}

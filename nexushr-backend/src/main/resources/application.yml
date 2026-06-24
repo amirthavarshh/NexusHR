@@ -3,9 +3,9 @@ spring:
     name: nexushr-backend
 
   datasource:
-    url: jdbc:postgresql://${DB_HOST:localhost}:5432/nexushr
-    username: nexushr_user
-    password: nexushr_password
+    url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:NexusHR}
+    username: ${DB_USERNAME:postgres}
+    password: ${DB_PASSWORD:Hello123@}
     driver-class-name: org.postgresql.Driver
 
   jpa:

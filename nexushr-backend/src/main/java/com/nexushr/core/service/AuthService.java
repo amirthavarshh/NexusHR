@@ -61,6 +61,7 @@ public class AuthService {
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .employeeId(null) // New user doesn't have employee profile yet
+                .id(user.getId())
                 .build();
     }
 
@@ -84,6 +85,7 @@ public class AuthService {
                 .email(user.getEmail())
                 .role(user.getRole().name())
                 .employeeId(employeeId)
+                .id(user.getId())
                 .build();
     }
 }
