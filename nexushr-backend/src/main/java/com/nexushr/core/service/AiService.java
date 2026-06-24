@@ -5,11 +5,9 @@ import com.nexushr.core.model.AttendanceStatus;
 import com.nexushr.core.model.Employee;
 import com.nexushr.core.model.LeaveRequest;
 import com.nexushr.core.model.LeaveType;
-import com.nexushr.core.model.PerformanceReview;
 import com.nexushr.core.repository.AttendanceRepository;
 import com.nexushr.core.repository.EmployeeRepository;
 import com.nexushr.core.repository.LeaveRequestRepository;
-import com.nexushr.core.repository.PerformanceReviewRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -35,8 +33,7 @@ public class AiService {
     @Autowired
     private LeaveRequestRepository leaveRequestRepository;
 
-    @Autowired
-    private PerformanceReviewRepository performanceReviewRepository;
+
 
     // Optional Hugging Face API Key from environment
     private final String hfApiKey = System.getenv("HF_API_KEY") != null ? System.getenv("HF_API_KEY") : System.getenv("HUGGINGFACE_API_KEY");
