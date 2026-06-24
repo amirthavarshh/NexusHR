@@ -20,6 +20,8 @@ import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.JsonNode;
 
 @Service
 public class AiService {
@@ -36,8 +38,10 @@ public class AiService {
     @Autowired
     private PerformanceReviewRepository performanceReviewRepository;
 
-    // Optional OpenAI API Key from environment
-    private final String openAiApiKey = System.getenv("OPENAI_API_KEY");
+    // Optional Hugging Face API Key from environment
+    private final String hfApiKey = System.getenv("HF_API_KEY") != null ? System.getenv("HF_API_KEY") : System.getenv("HUGGINGFACE_API_KEY");
+    private final String hfModel = System.getenv("HF_MODEL") != null ? System.getenv("HF_MODEL") : "Qwen/Qwen2.5-7B-Instruct";
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public Map<String, Object> predictAttrition(Long employeeId) {
         Employee employee = employeeRepository.findById(employeeId)
@@ -46,7 +50,6 @@ public class AiService {
         // Pull indicators
         List<Attendance> attendances = attendanceRepository.findByEmployee_Id(employeeId);
         List<LeaveRequest> leaves = leaveRequestRepository.findByEmployee_Id(employeeId);
-        List<PerformanceReview> reviews = performanceReviewRepository.findByEmployee_Id(employeeId);
 
         // 1. Compute Base Risk Score based on real indicators
         double risk = 15.0; // Base baseline risk (15%)
@@ -142,14 +145,15 @@ public class AiService {
     }
 
     private String getAttritionExplanation(Employee employee, String riskCategory, long lateCount, double rating, long unpaidLeaves) {
-        // Fallback or override using actual OpenAI endpoint if API Key is configured
-        if (openAiApiKey != null && !openAiApiKey.trim().isEmpty()) {
+        // Fallback or override using actual Hugging Face endpoint if API Key is configured
+        if (hfApiKey != null && !hfApiKey.trim().isEmpty()) {
             try {
                 String prompt = String.format("Analyze the flight risk of an employee: Name: %s %s, Role: %s, Department: %s, Performance Rating: %.1f/5, Days late/absent: %d, Unpaid leaves taken: %d. Risk Category: %s. Write a concise, professional paragraph explaining the risk factors and offering a smart HR retention action item.", 
                         employee.getFirstName(), employee.getLastName(), employee.getPosition(), employee.getDepartment(), rating, lateCount, unpaidLeaves, riskCategory);
-                return callOpenAi(prompt);
+                return callHuggingFace(prompt);
             } catch (Exception e) {
                 // fall through to rules
+                System.err.println("Error calling Hugging Face for attrition prediction: " + e.getMessage());
             }
         }
 
@@ -183,7 +187,7 @@ public class AiService {
     }
 
     private String getSkillGapRecommendations(Employee employee, List<Map<String, Object>> skills) {
-        if (openAiApiKey != null && !openAiApiKey.trim().isEmpty()) {
+        if (hfApiKey != null && !hfApiKey.trim().isEmpty()) {
             try {
                 StringBuilder prompt = new StringBuilder();
                 prompt.append(String.format("For employee %s %s (%s in %s), review these competencies (current vs target out of 5):\n", 
@@ -192,9 +196,10 @@ public class AiService {
                     prompt.append(String.format("- %s: %.1f -> %.1f\n", s.get("skill"), s.get("current"), s.get("target")));
                 }
                 prompt.append("Provide a short bulleted plan containing exactly two training suggestions and one certifications goal.");
-                return callOpenAi(prompt.toString());
+                return callHuggingFace(prompt.toString());
             } catch (Exception e) {
                 // fall through
+                System.err.println("Error calling Hugging Face for skill gap analysis: " + e.getMessage());
             }
         }
 
@@ -207,31 +212,35 @@ public class AiService {
         return sb.toString();
     }
 
-    private String callOpenAi(String prompt) throws Exception {
+    private String callHuggingFace(String prompt) throws Exception {
         HttpClient client = HttpClient.newHttpClient();
-        String jsonPayload = String.format("{\"model\": \"gpt-4o-mini\", \"messages\": [{\"role\": \"user\", \"content\": \"%s\"}], \"temperature\": 0.3}", 
-                prompt.replace("\"", "\\\"").replace("\n", "\\n"));
+        Map<String, Object> payload = Map.of(
+            "model", hfModel,
+            "messages", List.of(
+                Map.of("role", "user", "content", prompt)
+            ),
+            "temperature", 0.3,
+            "max_tokens", 500
+        );
+        String jsonPayload = objectMapper.writeValueAsString(payload);
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
-                .uri(URI.create("https://api.openai.com/v1/chat/completions"))
+                .uri(URI.create("https://api-inference.huggingface.co/v1/chat/completions"))
                 .header("Content-Type", "application/json")
-                .header("Authorization", "Bearer " + openAiApiKey)
+                .header("Authorization", "Bearer " + hfApiKey)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))
                 .build();
 
         HttpResponse<String> response = client.send(httpRequest, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() == 200) {
-            // Simple parsing of OpenAI chat completion response
-            String body = response.body();
-            int startIdx = body.indexOf("\"content\": \"");
-            if (startIdx != -1) {
-                startIdx += 12;
-                int endIdx = body.indexOf("\"", startIdx);
-                if (endIdx != -1) {
-                    return body.substring(startIdx, endIdx).replace("\\n", "\n").replace("\\\"", "\"");
-                }
+            JsonNode rootNode = objectMapper.readTree(response.body());
+            JsonNode choices = rootNode.path("choices");
+            if (choices.isArray() && choices.size() > 0) {
+                JsonNode message = choices.get(0).path("message");
+                return message.path("content").asText();
             }
         }
-        throw new RuntimeException("API error: Status " + response.statusCode());
+        throw new RuntimeException("Hugging Face API error: Status " + response.statusCode() + ", body: " + response.body());
     }
+
 }

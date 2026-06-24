@@ -7,7 +7,6 @@ import com.nexushr.core.repository.LeaveRequestRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -18,6 +17,10 @@ public class LeaveService {
 
     @Autowired
     private EmployeeRepository employeeRepository;
+
+    @Autowired
+    private NotificationService notificationService;
+
 
     public LeaveRequest applyLeave(LeaveRequestDto dto, String username) {
         Employee employee = employeeRepository.findByUser_Username(username)
@@ -54,7 +57,28 @@ public class LeaveService {
             employeeRepository.save(employee);
         }
 
-        return leaveRequestRepository.save(request);
+        LeaveRequest savedRequest = leaveRequestRepository.save(request);
+
+        // Notify manager
+        try {
+            Employee manager = employee.getManager();
+            if (manager != null && manager.getUser() != null) {
+                String title = "New Leave Request";
+                String message = String.format("Employee %s %s has requested %s leave starting from %s. Reason: %s", 
+                        employee.getFirstName(), employee.getLastName(), dto.getType(), dto.getStartDate(), dto.getReason());
+                notificationService.sendNotification(
+                        title, 
+                        message, 
+                        NotificationType.LEAVE_REQUEST, 
+                        manager.getUser().getId(), 
+                        employee.getUser().getId()
+                );
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to send notification for applied leave: " + e.getMessage());
+        }
+
+        return savedRequest;
     }
 
     public LeaveRequest approveLeave(Long id, String managerUsername) {
@@ -91,7 +115,28 @@ public class LeaveService {
             employeeRepository.save(employee);
         }
 
-        return leaveRequestRepository.save(request);
+        LeaveRequest savedRequest = leaveRequestRepository.save(request);
+
+        // Notify employee
+        try {
+            Employee employee = savedRequest.getEmployee();
+            if (employee != null && employee.getUser() != null) {
+                String title = "Leave Request Update";
+                String message = String.format("Your leave request starting %s has been set to: %s by %s.", 
+                        savedRequest.getStartDate(), savedRequest.getStatus(), managerUsername);
+                notificationService.sendNotification(
+                        title, 
+                        message, 
+                        NotificationType.LEAVE_APPROVED, 
+                        employee.getUser().getId(), 
+                        approver.getUser().getId()
+                );
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to send notification for approved leave: " + e.getMessage());
+        }
+
+        return savedRequest;
     }
 
     public LeaveRequest rejectLeave(Long id, String managerUsername) {
@@ -101,7 +146,31 @@ public class LeaveService {
         request.setStatus(LeaveStatus.REJECTED);
         request.setApprovedBy(managerUsername);
 
-        return leaveRequestRepository.save(request);
+        LeaveRequest savedRequest = leaveRequestRepository.save(request);
+
+        // Notify employee
+        try {
+            Employee employee = savedRequest.getEmployee();
+            Employee manager = employeeRepository.findByUser_Username(managerUsername).orElse(null);
+            Long managerUserId = (manager != null && manager.getUser() != null) ? manager.getUser().getId() : null;
+
+            if (employee != null && employee.getUser() != null) {
+                String title = "Leave Request Rejected";
+                String message = String.format("Your leave request starting %s has been rejected by %s.", 
+                        savedRequest.getStartDate(), managerUsername);
+                notificationService.sendNotification(
+                        title, 
+                        message, 
+                        NotificationType.LEAVE_REJECTED, 
+                        employee.getUser().getId(), 
+                        managerUserId
+                );
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to send notification for rejected leave: " + e.getMessage());
+        }
+
+        return savedRequest;
     }
 
     public List<LeaveRequest> getMyLeaveRequests(String username) {

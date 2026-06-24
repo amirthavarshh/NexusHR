@@ -33,3 +33,13 @@ security:
     # Base64-encoded secret key (at least 256 bits). Here is a pre-generated valid secret for development:
     secret-key: dGhpcy1pcy1hLXNlY3VyZS1hbmQtc3VmaWNpZW50bHktbG9uZy1zZWNyZXQta2V5LWZvci1uZXh1c2hyLWFwcC1kZXZlbG9wbWVudC1vbmx5IQ==
     expiration-time: 86400000 # 24 hours in milliseconds
+
+app:
+  notification:
+    email:
+      enabled: ${APP_NOTIFICATION_EMAIL_ENABLED:true}
+      provider: ${APP_NOTIFICATION_EMAIL_PROVIDER:AWS_SES}
+    sms:
+      enabled: ${APP_NOTIFICATION_SMS_ENABLED:true}
+      provider: ${APP_NOTIFICATION_SMS_PROVIDER:Twilio}
+

@@ -40,8 +40,16 @@ services:
       - "8080:8080"
     environment:
       - DB_HOST=postgres
+      - DB_NAME=nexushr
+      - DB_USERNAME=nexushr_user
+      - DB_PASSWORD=nexushr_password
       - REDIS_HOST=redis
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - HF_API_KEY=${HF_API_KEY}
+      - HF_MODEL=${HF_MODEL}
+      - APP_NOTIFICATION_EMAIL_ENABLED=true
+      - APP_NOTIFICATION_SMS_ENABLED=true
+      - APP_NOTIFICATION_EMAIL_PROVIDER=AWS_SES
+      - APP_NOTIFICATION_SMS_PROVIDER=Twilio
     depends_on:
       postgres:
         condition: service_healthy

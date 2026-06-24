@@ -2,7 +2,6 @@ package com.nexushr.core.service;
 
 import com.nexushr.core.dto.DepartmentDTO;
 import com.nexushr.core.model.Department;
-import com.nexushr.core.model.Employee;
 import com.nexushr.core.repository.DepartmentRepository;
 import com.nexushr.core.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;

@@ -7,6 +7,7 @@ import com.nexushr.core.model.User;
 import com.nexushr.core.repository.EmployeeRepository;
 import com.nexushr.core.repository.PerformanceReviewRepository;
 import com.nexushr.core.repository.UserRepository;
+import com.nexushr.core.model.NotificationType;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,6 +25,10 @@ public class PerformanceReviewService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private NotificationService notificationService;
+
 
     public PerformanceReview createReview(PerformanceReviewRequest request, String reviewerUsername) {
         Employee employee = employeeRepository.findById(request.getEmployeeId())
@@ -52,6 +57,24 @@ public class PerformanceReviewService {
         
         employee.setPerformanceRating(Math.round(avg * 100.0) / 100.0);
         employeeRepository.save(employee);
+
+        // Notify employee
+        try {
+            if (employee.getUser() != null) {
+                String title = "New Performance Review Submitted";
+                String message = String.format("A new performance review with a rating of %.1f has been submitted by %s.", 
+                        request.getRating(), reviewerUsername);
+                notificationService.sendNotification(
+                        title, 
+                        message, 
+                        NotificationType.PERFORMANCE_REVIEW, 
+                        employee.getUser().getId(), 
+                        reviewer.getId()
+                );
+            }
+        } catch (Exception e) {
+            System.err.println("Failed to send notification for performance review: " + e.getMessage());
+        }
 
         return saved;
     }

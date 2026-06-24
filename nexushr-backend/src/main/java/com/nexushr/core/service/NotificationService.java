@@ -3,7 +3,11 @@ package com.nexushr.core.service;
 import com.nexushr.core.dto.NotificationDTO;
 import com.nexushr.core.model.Notification;
 import com.nexushr.core.model.NotificationType;
+import com.nexushr.core.model.User;
+import com.nexushr.core.model.Employee;
 import com.nexushr.core.repository.NotificationRepository;
+import com.nexushr.core.repository.UserRepository;
+import com.nexushr.core.repository.EmployeeRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
@@ -21,6 +25,24 @@ public class NotificationService {
     @Autowired
     private SimpMessagingTemplate messagingTemplate;
 
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private EmployeeRepository employeeRepository;
+
+    @org.springframework.beans.factory.annotation.Value("${app.notification.email.enabled:false}")
+    private boolean emailEnabled;
+
+    @org.springframework.beans.factory.annotation.Value("${app.notification.sms.enabled:false}")
+    private boolean smsEnabled;
+
+    @org.springframework.beans.factory.annotation.Value("${app.notification.email.provider:SIMULATED}")
+    private String emailProvider;
+
+    @org.springframework.beans.factory.annotation.Value("${app.notification.sms.provider:SIMULATED}")
+    private String smsProvider;
+
     public void sendNotification(String title, String message, NotificationType type, Long recipientId, Long senderId) {
         Notification notification = new Notification();
         notification.setTitle(title);
@@ -32,12 +54,38 @@ public class NotificationService {
         Notification savedNotification = notificationRepository.save(notification);
 
         // Send to WebSocket
-        messagingTemplate.convertAndSendToUser(
-                recipientId.toString(),
-                "/queue/notifications",
-                convertToDTO(savedNotification)
-        );
+        try {
+            messagingTemplate.convertAndSendToUser(
+                    recipientId.toString(),
+                    "/queue/notifications",
+                    convertToDTO(savedNotification)
+            );
+        } catch (Exception e) {
+            System.err.println("WebSocket dispatch failed: " + e.getMessage());
+        }
+
+        // Send simulated Email / SMS alerts
+        try {
+            User recipient = userRepository.findById(recipientId).orElse(null);
+            if (recipient != null) {
+                String email = recipient.getEmail();
+                Employee employee = employeeRepository.findByUser(recipient).orElse(null);
+                String phone = (employee != null) ? employee.getPhone() : null;
+
+                if (emailEnabled) {
+                    System.out.println(String.format("[EMAIL SERVICE - %s] Dispatched email notification to: %s", emailProvider, email));
+                    System.out.println(String.format("Subject: %s | Message: %s", title, message));
+                }
+                if (smsEnabled && phone != null && !phone.trim().isEmpty()) {
+                    System.out.println(String.format("[SMS SERVICE - %s] Dispatched SMS notification to: %s", smsProvider, phone));
+                    System.out.println(String.format("Message: %s", message));
+                }
+            }
+        } catch (Exception e) {
+            System.err.println("Simulated Email/SMS alert dispatch failed: " + e.getMessage());
+        }
     }
+
 
     public List<NotificationDTO> getUserNotifications(Long userId) {
         return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId)
