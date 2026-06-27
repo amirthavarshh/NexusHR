@@ -7,10 +7,7 @@ metadata:
 data:
   SPRING_DATASOURCE_URL: "jdbc:postgresql://postgres-service:5432/nexushr"
   SPRING_DATASOURCE_USERNAME: "nexushr_user"
-  SPRING_DATASOURCE_PASSWORD: "nexushr_password"
   SPRING_DATA_REDIS_HOST: "redis-service"
   SPRING_DATA_REDIS_PORT: "6379"
   SPRING_PROFILES_ACTIVE: "prod"
-  SECURITY_JWT_SECRET_KEY: "dGhpcy1pcy1hLXNlY3VyZS1hbmQtc3VmaWNpZW50bHktbG9uZy1zZWNyZXQta2V5LWZvci1uZXh1c2hyLWFwcC1kZXZlbG9wbWVudC1vbmx5IQ=="
   SECURITY_JWT_EXPIRATION_TIME: "86400000"
-  VITE_API_BASE_URL: "http://localhost:8080/api"

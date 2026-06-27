@@ -94,6 +94,10 @@ public class LeaveService {
         Role approverRole = approver.getUser().getRole();
         LeaveStatus currentStatus = request.getStatus();
 
+        if (currentStatus == LeaveStatus.APPROVED || currentStatus == LeaveStatus.REJECTED) {
+            throw new IllegalArgumentException("This leave request has already been finalized");
+        }
+
         if (approverRole == Role.MANAGER && currentStatus == LeaveStatus.PENDING_MANAGER_APPROVAL) {
             if (request.getEmployee().getManager() == null
                     || !request.getEmployee().getManager().getId().equals(approver.getId())) {

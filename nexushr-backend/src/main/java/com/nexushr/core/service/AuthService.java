@@ -64,6 +64,44 @@ public class AuthService {
                 .build();
     }
 
+    public AuthResponse invite(RegisterRequest request) {
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new IllegalArgumentException("Username is already taken");
+        }
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new IllegalArgumentException("Email is already registered");
+        }
+
+        Role assignedRole = Role.EMPLOYEE;
+        if (request.getRole() != null) {
+            try {
+                assignedRole = Role.valueOf(request.getRole().toUpperCase());
+            } catch (Exception e) {
+                // Default to EMPLOYEE if role is invalid
+            }
+        }
+
+        User user = User.builder()
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .email(request.getEmail())
+                .role(assignedRole)
+                .build();
+
+        userRepository.save(user);
+
+        String token = jwtTokenProvider.generateToken(user.getUsername(), user.getRole().name());
+
+        return AuthResponse.builder()
+                .token(token)
+                .username(user.getUsername())
+                .email(user.getEmail())
+                .role(user.getRole().name())
+                .employeeId(null)
+                .id(user.getId())
+                .build();
+    }
+
     public AuthResponse login(AuthRequest request) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword()));

@@ -67,7 +67,14 @@ public class EmployeeController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
+    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee, Authentication authentication) {
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER")) &&
+            authentication.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_HR"))) {
+            Employee targetEmp = employeeService.getEmployeeById(id);
+            if (targetEmp.getManager() == null || !targetEmp.getManager().getUser().getUsername().equals(authentication.getName())) {
+                throw new org.springframework.security.access.AccessDeniedException("You can only update your direct reports");
+            }
+        }
         return ResponseEntity.ok(employeeService.updateEmployee(id, employee));
     }
 
@@ -93,7 +100,14 @@ public class EmployeeController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'HR')")
-    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id) {
+    public ResponseEntity<Void> deleteEmployee(@PathVariable Long id, Authentication authentication) {
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER")) &&
+            authentication.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_HR"))) {
+            Employee targetEmp = employeeService.getEmployeeById(id);
+            if (targetEmp.getManager() == null || !targetEmp.getManager().getUser().getUsername().equals(authentication.getName())) {
+                throw new org.springframework.security.access.AccessDeniedException("You can only delete your direct reports");
+            }
+        }
         employeeService.deleteEmployee(id);
         return ResponseEntity.noContent().build();
     }

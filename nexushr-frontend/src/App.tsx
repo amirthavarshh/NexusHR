@@ -710,7 +710,7 @@ export default function App() {
   const createAdminUser = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.register({
+      await api.invite({
         username: usernameInput,
         password: passwordInput,
         email: emailInput,
@@ -1069,23 +1069,7 @@ export default function App() {
                   />
                 </div>
 
-                {isRegistering && (
-                  <div>
-                    <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-2">
-                      System Role
-                    </label>
-                    <select
-                      value={roleInput}
-                      onChange={(e) => setRoleInput(e.target.value)}
-                      className="w-full px-3 py-2 rounded border border-slate-200 text-slate-800 focus:outline-none focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/20 text-sm shadow-sm dark:bg-slate-700 dark:border-slate-600 dark:text-white"
-                    >
-                      <option value="EMPLOYEE">Employee</option>
-                      <option value="MANAGER">Manager</option>
-                      <option value="HR">HR Officer</option>
-                      <option value="ADMIN">Administrator</option>
-                    </select>
-                  </div>
-                )}
+
 
                 <button 
                   type="submit" 

@@ -20,6 +20,9 @@ spec:
           imagePullPolicy: Never # Force local Minikube/Docker engine image reuse
           ports:
             - containerPort: 8080
+          envFrom:
+            - secretRef:
+                name: nexushr-secret
           env:
             - name: SPRING_DATASOURCE_URL
               valueFrom:
@@ -31,11 +34,7 @@ spec:
                 configMapKeyRef:
                   name: nexushr-config
                   key: SPRING_DATASOURCE_USERNAME
-            - name: SPRING_DATASOURCE_PASSWORD
-              valueFrom:
-                configMapKeyRef:
-                  name: nexushr-config
-                  key: SPRING_DATASOURCE_PASSWORD
+
             - name: SPRING_DATA_REDIS_HOST
               valueFrom:
                 configMapKeyRef:
@@ -46,11 +45,7 @@ spec:
                 configMapKeyRef:
                   name: nexushr-config
                   key: SPRING_DATA_REDIS_PORT
-            - name: SECURITY_JWT_SECRET_KEY
-              valueFrom:
-                configMapKeyRef:
-                  name: nexushr-config
-                  key: SECURITY_JWT_SECRET_KEY
+
             - name: SECURITY_JWT_EXPIRATION_TIME
               valueFrom:
                 configMapKeyRef:

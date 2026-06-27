@@ -32,6 +32,16 @@ public class PerformanceReviewController {
             @Valid @RequestBody PerformanceReviewRequest request,
             Authentication authentication) {
         String reviewerUsername = authentication.getName();
+        
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER")) &&
+            authentication.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_HR"))) {
+            Employee targetEmp = employeeRepository.findById(request.getEmployeeId())
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found"));
+            if (targetEmp.getManager() == null || !targetEmp.getManager().getUser().getUsername().equals(reviewerUsername)) {
+                throw new org.springframework.security.access.AccessDeniedException("You can only review your direct reports");
+            }
+        }
+        
         return ResponseEntity.ok(reviewService.createReview(request, reviewerUsername));
     }
 

@@ -29,9 +29,11 @@ public class EmployeeService {
     public Employee createEmployee(Employee employee, String username) {
         User user = userRepository.findByUsername(username)
                 .orElseGet(() -> {
+                    String generatedPassword = java.util.UUID.randomUUID().toString();
+                    System.out.println("Auto-provisioned password for " + username + ": " + generatedPassword);
                     User newUser = User.builder()
                             .username(username)
-                            .password(passwordEncoder.encode("password123"))
+                            .password(passwordEncoder.encode(generatedPassword))
                             .email(employee.getEmail())
                             .role(Role.EMPLOYEE)
                             .build();

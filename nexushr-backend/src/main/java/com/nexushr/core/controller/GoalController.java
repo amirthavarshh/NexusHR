@@ -35,7 +35,7 @@ public class GoalController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'HR')")
-    public ResponseEntity<Goal> createGoal(@RequestBody Map<String, Object> payload) {
+    public ResponseEntity<Goal> createGoal(@RequestBody Map<String, Object> payload, Authentication authentication) {
         if (!payload.containsKey("employeeId") || payload.get("employeeId") == null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "employeeId is required");
         }
@@ -53,6 +53,13 @@ public class GoalController {
 
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found"));
+
+        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER")) &&
+            authentication.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_HR"))) {
+            if (employee.getManager() == null || !employee.getManager().getUser().getUsername().equals(authentication.getName())) {
+                throw new org.springframework.security.access.AccessDeniedException("You can only assign goals to your direct reports");
+            }
+        }
 
         Goal goal = Goal.builder()
                 .employee(employee)

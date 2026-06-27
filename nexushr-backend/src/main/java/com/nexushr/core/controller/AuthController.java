@@ -22,6 +22,12 @@ public class AuthController {
         return ResponseEntity.ok(authService.register(signUpRequest));
     }
 
+    @PostMapping("/invite")
+    @org.springframework.security.access.prepost.PreAuthorize("hasAnyRole('ADMIN', 'HR')")
+    public ResponseEntity<AuthResponse> inviteUser(@Valid @RequestBody RegisterRequest signUpRequest) {
+        return ResponseEntity.ok(authService.invite(signUpRequest));
+    }
+
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> authenticateUser(@Valid @RequestBody AuthRequest loginRequest) {
         return ResponseEntity.ok(authService.login(loginRequest));

@@ -48,6 +48,15 @@ export const api = {
     return handleResponse<any>(res);
   },
 
+  async invite(payload: any) {
+    const res = await fetch(`${BASE_URL}/auth/invite`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify(payload)
+    });
+    return handleResponse<any>(res);
+  },
+
   // Employee API
   async getMyProfile() {
     const res = await fetch(`${BASE_URL}/employees/me`, {
