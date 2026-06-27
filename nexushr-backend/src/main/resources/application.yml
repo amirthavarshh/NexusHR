@@ -5,7 +5,7 @@ spring:
   datasource:
     url: jdbc:postgresql://${DB_HOST:localhost}:5432/${DB_NAME:NexusHR}
     username: ${DB_USERNAME:postgres}
-    password: ${DB_PASSWORD:Hello123@}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -31,7 +31,7 @@ server:
 security:
   jwt:
     # Base64-encoded secret key (at least 256 bits). Here is a pre-generated valid secret for development:
-    secret-key: dGhpcy1pcy1hLXNlY3VyZS1hbmQtc3VmaWNpZW50bHktbG9uZy1zZWNyZXQta2V5LWZvci1uZXh1c2hyLWFwcC1kZXZlbG9wbWVudC1vbmx5IQ==
+    secret-key: ${JWT_SECRET_KEY}
     expiration-time: 86400000 # 24 hours in milliseconds
 
 app:

@@ -36,6 +36,16 @@ public class GoalController {
     @PostMapping
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'HR')")
     public ResponseEntity<Goal> createGoal(@RequestBody Map<String, Object> payload) {
+        if (!payload.containsKey("employeeId") || payload.get("employeeId") == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "employeeId is required");
+        }
+        if (!payload.containsKey("title") || payload.get("title") == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "title is required");
+        }
+        if (!payload.containsKey("targetDate") || payload.get("targetDate") == null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "targetDate is required");
+        }
+
         Long employeeId = Long.valueOf(payload.get("employeeId").toString());
         String title = payload.get("title").toString();
         String description = payload.get("description") != null ? payload.get("description").toString() : "";

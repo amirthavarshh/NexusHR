@@ -9,4 +9,5 @@ import java.util.List;
 public interface PayrollRepository extends JpaRepository<Payroll, Long> {
     List<Payroll> findByEmployee_Id(Long employeeId);
     List<Payroll> findByEmployee_User_Username(String username);
+    boolean existsByEmployeeAndPayPeriodStartAndPayPeriodEnd(com.nexushr.core.model.Employee employee, java.time.LocalDate payPeriodStart, java.time.LocalDate payPeriodEnd);
 }

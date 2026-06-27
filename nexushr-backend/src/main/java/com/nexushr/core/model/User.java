@@ -2,6 +2,7 @@ package com.nexushr.core.model;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Entity
 @Table(name = "users")
@@ -14,6 +15,7 @@ public class User {
     private String username;
 
     @Column(nullable = false)
+    @JsonIgnore
     private String password;
 
     @Column(unique = true, nullable = false)
@@ -32,7 +34,8 @@ public class User {
     }
 
     // Constructors
-    public User() {}
+    public User() {
+    }
 
     public User(Long id, String username, String password, String email, Role role, LocalDateTime createdAt) {
         this.id = id;
@@ -44,23 +47,53 @@ public class User {
     }
 
     // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getUsername() { return username; }
-    public void setUsername(String username) { this.username = username; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getPassword() { return password; }
-    public void setPassword(String password) { this.password = password; }
+    public String getUsername() {
+        return username;
+    }
 
-    public String getEmail() { return email; }
-    public void setEmail(String email) { this.email = email; }
+    public void setUsername(String username) {
+        this.username = username;
+    }
 
-    public Role getRole() { return role; }
-    public void setRole(Role role) { this.role = role; }
+    public String getPassword() {
+        return password;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
+    public Role getRole() {
+        return role;
+    }
+
+    public void setRole(Role role) {
+        this.role = role;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
 
     // Builder Pattern
     public static UserBuilder builder() {
@@ -75,14 +108,38 @@ public class User {
         private Role role;
         private LocalDateTime createdAt;
 
-        UserBuilder() {}
+        UserBuilder() {
+        }
 
-        public UserBuilder id(Long id) { this.id = id; return this; }
-        public UserBuilder username(String username) { this.username = username; return this; }
-        public UserBuilder password(String password) { this.password = password; return this; }
-        public UserBuilder email(String email) { this.email = email; return this; }
-        public UserBuilder role(Role role) { this.role = role; return this; }
-        public UserBuilder createdAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
+        public UserBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public UserBuilder username(String username) {
+            this.username = username;
+            return this;
+        }
+
+        public UserBuilder password(String password) {
+            this.password = password;
+            return this;
+        }
+
+        public UserBuilder email(String email) {
+            this.email = email;
+            return this;
+        }
+
+        public UserBuilder role(Role role) {
+            this.role = role;
+            return this;
+        }
+
+        public UserBuilder createdAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
 
         public User build() {
             return new User(id, username, password, email, role, createdAt);

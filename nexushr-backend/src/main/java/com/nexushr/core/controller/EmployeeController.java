@@ -20,10 +20,22 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee, 
-                                                   @RequestParam(required = false) String username, 
-                                                   Authentication authentication) {
-        String targetUsername = (username != null && !username.trim().isEmpty()) ? username : authentication.getName();
+    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee,
+            @RequestParam(required = false) String username,
+            Authentication authentication) {
+        String callerUsername = authentication.getName();
+        String targetUsername = (username != null && !username.trim().isEmpty()) ? username : callerUsername;
+
+        if (!targetUsername.equals(callerUsername)) {
+            boolean isPrivileged = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")
+                            || a.getAuthority().equals("ROLE_HR")
+                            || a.getAuthority().equals("ROLE_MANAGER"));
+            if (!isPrivileged) {
+                throw new org.springframework.security.access.AccessDeniedException(
+                        "You cannot create an employee profile for another user");
+            }
+        }
         return ResponseEntity.ok(employeeService.createEmployee(employee, targetUsername));
     }
 
@@ -34,7 +46,16 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
+    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id, Authentication authentication) {
+        boolean isPrivileged = authentication.getAuthorities().stream()
+                .anyMatch(a -> List.of("ROLE_ADMIN", "ROLE_HR", "ROLE_MANAGER").contains(a.getAuthority()));
+
+        if (!isPrivileged) {
+            Employee self = employeeService.getEmployeeByUsername(authentication.getName());
+            if (!self.getId().equals(id)) {
+                throw new org.springframework.security.access.AccessDeniedException("Access denied");
+            }
+        }
         return ResponseEntity.ok(employeeService.getEmployeeById(id));
     }
 
@@ -45,6 +66,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'HR', 'MANAGER')")
     public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
         return ResponseEntity.ok(employeeService.updateEmployee(id, employee));
     }
@@ -56,7 +78,16 @@ public class EmployeeController {
     }
 
     @GetMapping("/manager/{id}/teammates")
-    public ResponseEntity<List<Employee>> getTeammates(@PathVariable Long id) {
+    public ResponseEntity<List<Employee>> getTeammates(@PathVariable Long id, Authentication authentication) {
+        boolean isPrivileged = authentication.getAuthorities().stream()
+                .anyMatch(a -> List.of("ROLE_ADMIN", "ROLE_HR").contains(a.getAuthority()));
+        
+        if (!isPrivileged) {
+            Employee emp = employeeService.getEmployeeByUsername(authentication.getName());
+            if (!emp.getId().equals(id)) {
+                throw new org.springframework.security.access.AccessDeniedException("Access denied");
+            }
+        }
         return ResponseEntity.ok(employeeService.getTeammates(id));
     }
 

@@ -37,8 +37,8 @@ public class NotificationController {
     }
 
     @PutMapping("/{id}/read")
-    public ResponseEntity<Void> markAsRead(@PathVariable Long id) {
-        notificationService.markAsRead(id);
+    public ResponseEntity<Void> markAsRead(@PathVariable Long id, Authentication auth) {
+        notificationService.markAsRead(id, getCurrentUserId(auth));
         return ResponseEntity.ok().build();
     }
 
@@ -49,8 +49,8 @@ public class NotificationController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteNotification(@PathVariable Long id) {
-        notificationService.deleteNotification(id);
+    public ResponseEntity<Void> deleteNotification(@PathVariable Long id, Authentication auth) {
+        notificationService.deleteNotification(id, getCurrentUserId(auth));
         return ResponseEntity.ok().build();
     }
 }

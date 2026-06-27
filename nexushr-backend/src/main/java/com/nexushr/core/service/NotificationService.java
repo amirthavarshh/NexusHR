@@ -58,8 +58,7 @@ public class NotificationService {
             messagingTemplate.convertAndSendToUser(
                     recipientId.toString(),
                     "/queue/notifications",
-                    convertToDTO(savedNotification)
-            );
+                    convertToDTO(savedNotification));
         } catch (Exception e) {
             System.err.println("WebSocket dispatch failed: " + e.getMessage());
         }
@@ -73,11 +72,13 @@ public class NotificationService {
                 String phone = (employee != null) ? employee.getPhone() : null;
 
                 if (emailEnabled) {
-                    System.out.println(String.format("[EMAIL SERVICE - %s] Dispatched email notification to: %s", emailProvider, email));
+                    System.out.println(String.format("[EMAIL SERVICE - %s] Dispatched email notification to: %s",
+                            emailProvider, email));
                     System.out.println(String.format("Subject: %s | Message: %s", title, message));
                 }
                 if (smsEnabled && phone != null && !phone.trim().isEmpty()) {
-                    System.out.println(String.format("[SMS SERVICE - %s] Dispatched SMS notification to: %s", smsProvider, phone));
+                    System.out.println(
+                            String.format("[SMS SERVICE - %s] Dispatched SMS notification to: %s", smsProvider, phone));
                     System.out.println(String.format("Message: %s", message));
                 }
             }
@@ -85,7 +86,6 @@ public class NotificationService {
             System.err.println("Simulated Email/SMS alert dispatch failed: " + e.getMessage());
         }
     }
-
 
     public List<NotificationDTO> getUserNotifications(Long userId) {
         return notificationRepository.findByRecipientIdOrderByCreatedAtDesc(userId)
@@ -97,21 +97,30 @@ public class NotificationService {
     }
 
     @Transactional
-    public void markAsRead(Long notificationId) {
-        notificationRepository.findById(notificationId).ifPresent(notification -> {
-            notification.setRead(true);
-            notificationRepository.save(notification);
-        });
+    public void markAsRead(Long notificationId, Long requestingUserId) {
+        Notification n = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("Notification not found"));
+        if (!n.getRecipientId().equals(requestingUserId)) {
+            throw new org.springframework.security.access.AccessDeniedException("Not your notification");
+        }
+        n.setRead(true);
+        notificationRepository.save(n);
     }
 
     @Transactional
     public void markAllAsRead(Long userId) {
-        List<Notification> unread = notificationRepository.findByRecipientIdAndIsReadOrderByCreatedAtDesc(userId, false);
+        List<Notification> unread = notificationRepository.findByRecipientIdAndIsReadOrderByCreatedAtDesc(userId,
+                false);
         unread.forEach(n -> n.setRead(true));
         notificationRepository.saveAll(unread);
     }
 
-    public void deleteNotification(Long notificationId) {
+    public void deleteNotification(Long notificationId, Long requestingUserId) {
+        Notification n = notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new IllegalArgumentException("Notification not found"));
+        if (!n.getRecipientId().equals(requestingUserId)) {
+            throw new org.springframework.security.access.AccessDeniedException("Not your notification");
+        }
         notificationRepository.deleteById(notificationId);
     }
 

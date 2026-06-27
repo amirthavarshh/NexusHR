@@ -34,6 +34,10 @@ public class PayrollService {
                 continue;
             }
 
+            if (payrollRepository.existsByEmployeeAndPayPeriodStartAndPayPeriodEnd(employee, start, end)) {
+                continue; // Idempotency check: skip if payroll already generated for this period
+            }
+
             double basic = employee.getSalary();
             double allowances = Math.round(basic * 0.10 * 100.0) / 100.0; // 10% allowance
 

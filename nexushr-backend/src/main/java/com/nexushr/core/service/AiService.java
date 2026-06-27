@@ -210,7 +210,9 @@ public class AiService {
     }
 
     private String callHuggingFace(String prompt) throws Exception {
-        HttpClient client = HttpClient.newHttpClient();
+        HttpClient client = HttpClient.newBuilder()
+                .connectTimeout(java.time.Duration.ofSeconds(10))
+                .build();
         Map<String, Object> payload = Map.of(
             "model", hfModel,
             "messages", List.of(
@@ -223,6 +225,7 @@ public class AiService {
 
         HttpRequest httpRequest = HttpRequest.newBuilder()
                 .uri(URI.create("https://api-inference.huggingface.co/v1/chat/completions"))
+                .timeout(java.time.Duration.ofSeconds(30))
                 .header("Content-Type", "application/json")
                 .header("Authorization", "Bearer " + hfApiKey)
                 .POST(HttpRequest.BodyPublishers.ofString(jsonPayload))

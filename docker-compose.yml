@@ -66,14 +66,6 @@ services:
     depends_on:
       - backend
 
-  adminer:
-    image: adminer:latest
-    container_name: nexushr-adminer
-    ports:
-      - "8085:8080"
-    depends_on:
-      - postgres
-
 volumes:
   postgres_data:
   redis_data:

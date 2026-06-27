@@ -1,14 +1,20 @@
 package com.nexushr.core.controller;
 
 import com.nexushr.core.dto.PerformanceReviewRequest;
+import com.nexushr.core.model.Employee;
 import com.nexushr.core.model.PerformanceReview;
+import com.nexushr.core.model.User;
+import com.nexushr.core.repository.EmployeeRepository;
+import com.nexushr.core.repository.UserRepository;
 import com.nexushr.core.service.PerformanceReviewService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -29,8 +35,24 @@ public class PerformanceReviewController {
         return ResponseEntity.ok(reviewService.createReview(request, reviewerUsername));
     }
 
+    @Autowired
+    private EmployeeRepository employeeRepository;
+    @Autowired
+    private UserRepository userRepository;
+
     @GetMapping("/employee/{employeeId}")
-    public ResponseEntity<List<PerformanceReview>> getEmployeeReviews(@PathVariable Long employeeId) {
+    public ResponseEntity<List<PerformanceReview>> getEmployeeReviews(@PathVariable Long employeeId,
+            Authentication auth) {
+        User user = userRepository.findByUsername(auth.getName())
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
+
+        if (user.getRole().name().equals("EMPLOYEE")) {
+            Employee emp = employeeRepository.findByUser(user)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee profile not found"));
+            if (!emp.getId().equals(employeeId)) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            }
+        }
         return ResponseEntity.ok(reviewService.getEmployeeReviews(employeeId));
     }
 }

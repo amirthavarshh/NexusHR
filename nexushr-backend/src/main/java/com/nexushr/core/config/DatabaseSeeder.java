@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
+@org.springframework.context.annotation.Profile("!prod")
 public class DatabaseSeeder implements CommandLineRunner {
 
     @Autowired
@@ -24,7 +25,7 @@ public class DatabaseSeeder implements CommandLineRunner {
     public void run(String... args) throws Exception {
         // 1. Seed Default Departments if they don't exist
         List<String> defaultDepartments = Arrays.asList("IT", "HR", "Finance", "Sales", "Administration", "R&D");
-        
+
         for (String deptName : defaultDepartments) {
             if (departmentRepository.findByDepartmentName(deptName).isEmpty()) {
                 Department dept = new Department(deptName);
@@ -44,7 +45,7 @@ public class DatabaseSeeder implements CommandLineRunner {
                             newDept.setDescription("Auto-generated for legacy data");
                             return departmentRepository.save(newDept);
                         });
-                
+
                 emp.setDepartmentEntity(dept);
                 employeeRepository.save(emp);
             }
