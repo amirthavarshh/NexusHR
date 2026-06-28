@@ -1,4 +1,4 @@
-const BASE_URL = 'http://localhost:8080/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api';
 
 function getHeaders(): HeadersInit {
   const token = localStorage.getItem('token');
@@ -56,8 +56,9 @@ export const api = {
     return handleResponse<any>(res);
   },
 
-  async createProfile(payload: any) {
-    const res = await fetch(`${BASE_URL}/employees`, {
+  async createProfile(payload: any, username?: string) {
+    const url = username ? `${BASE_URL}/employees?username=${encodeURIComponent(username)}` : `${BASE_URL}/employees`;
+    const res = await fetch(url, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(payload)

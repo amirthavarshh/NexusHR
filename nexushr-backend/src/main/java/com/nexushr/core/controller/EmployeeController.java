@@ -20,9 +20,24 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee, Authentication authentication) {
-        String username = authentication.getName();
-        return ResponseEntity.ok(employeeService.createEmployee(employee, username));
+    public ResponseEntity<Employee> createEmployee(
+            @RequestBody Employee employee,
+            @RequestParam(required = false) String username,
+            Authentication authentication) {
+        String targetUsername = username;
+        if (targetUsername == null || targetUsername.trim().isEmpty()) {
+            targetUsername = authentication.getName();
+        } else {
+            // Check if caller is MANAGER, ADMIN, or HR
+            boolean isPrivileged = authentication.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER") ||
+                                   a.getAuthority().equals("ROLE_ADMIN") ||
+                                   a.getAuthority().equals("ROLE_HR"));
+            if (!isPrivileged) {
+                return ResponseEntity.status(403).build(); // Forbidden
+            }
+        }
+        return ResponseEntity.ok(employeeService.createEmployee(employee, targetUsername));
     }
 
     @GetMapping
