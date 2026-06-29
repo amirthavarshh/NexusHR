@@ -85,6 +85,12 @@ public class GoalController {
             if (!emp.getId().equals(employeeId)) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
             }
+        } else if (user.getRole().name().equals("MANAGER")) {
+            Employee targetEmp = employeeRepository.findById(employeeId)
+                    .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found"));
+            if (targetEmp.getManager() == null || !targetEmp.getManager().getUser().getUsername().equals(authentication.getName())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied: Not the direct manager");
+            }
         }
 
         return ResponseEntity.ok(goalRepository.findByEmployeeId(employeeId));
@@ -112,6 +118,11 @@ public class GoalController {
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee profile not found"));
             if (!emp.getId().equals(goal.getEmployee().getId())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied");
+            }
+        } else if (user.getRole().name().equals("MANAGER")) {
+            Employee targetEmp = goal.getEmployee();
+            if (targetEmp.getManager() == null || !targetEmp.getManager().getUser().getUsername().equals(authentication.getName())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied: Not the direct manager");
             }
         }
 
