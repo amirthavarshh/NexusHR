@@ -1,4 +1,4 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080/api';
+const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api';
 
 function getHeaders(): HeadersInit {
   const token = localStorage.getItem('token');
@@ -16,6 +16,9 @@ async function handleResponse<T>(response: Response): Promise<T> {
       errorMsg = data.message || data.error || errorMsg;
     } catch {
       errorMsg = response.statusText || errorMsg;
+    }
+    if (response.status === 401) {
+      window.dispatchEvent(new Event('auth-unauthorized'));
     }
     throw new Error(errorMsg);
   }
@@ -48,15 +51,6 @@ export const api = {
     return handleResponse<any>(res);
   },
 
-  async invite(payload: any) {
-    const res = await fetch(`${BASE_URL}/auth/invite`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(payload)
-    });
-    return handleResponse<any>(res);
-  },
-
   // Employee API
   async getMyProfile() {
     const res = await fetch(`${BASE_URL}/employees/me`, {
@@ -65,9 +59,9 @@ export const api = {
     return handleResponse<any>(res);
   },
 
-  async createProfile(payload: any, targetUsername?: string) {
-    const query = targetUsername ? `?username=${encodeURIComponent(targetUsername)}` : '';
-    const res = await fetch(`${BASE_URL}/employees${query}`, {
+  async createProfile(payload: any, username?: string) {
+    const url = username ? `${BASE_URL}/employees?username=${encodeURIComponent(username)}` : `${BASE_URL}/employees`;
+    const res = await fetch(url, {
       method: 'POST',
       headers: getHeaders(),
       body: JSON.stringify(payload)
@@ -84,15 +78,6 @@ export const api = {
     return handleResponse<any>(res);
   },
 
-  async deleteProfile(id: number) {
-    const res = await fetch(`${BASE_URL}/employees/${id}`, {
-      method: 'DELETE',
-      headers: getHeaders()
-    });
-    if (res.status === 204) return true;
-    return handleResponse<any>(res);
-  },
-
   async getAllEmployees() {
     const res = await fetch(`${BASE_URL}/employees`, {
       headers: getHeaders()
@@ -105,13 +90,6 @@ export const api = {
       headers: getHeaders()
     });
     return handleResponse<any>(res);
-  },
-
-  async getTeammates(managerId: number) {
-    const res = await fetch(`${BASE_URL}/employees/manager/${managerId}/teammates`, {
-      headers: getHeaders()
-    });
-    return handleResponse<any[]>(res);
   },
 
   // Attendance API
@@ -282,103 +260,6 @@ export const api = {
       method: 'PUT',
       headers: getHeaders(),
       body: JSON.stringify({ status })
-    });
-    return handleResponse<any>(res);
-  },
-
-  // Department API
-  async getAllDepartments() {
-    const res = await fetch(`${BASE_URL}/departments`, {
-      headers: getHeaders()
-    });
-    return handleResponse<any[]>(res);
-  },
-  async createDepartment(payload: any) {
-    const res = await fetch(`${BASE_URL}/departments`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(payload)
-    });
-    return handleResponse<any>(res);
-  },
-  async updateDepartment(id: number, payload: any) {
-    const res = await fetch(`${BASE_URL}/departments/${id}`, {
-      method: 'PUT',
-      headers: getHeaders(),
-      body: JSON.stringify(payload)
-    });
-    return handleResponse<any>(res);
-  },
-  async deleteDepartment(id: number) {
-    const res = await fetch(`${BASE_URL}/departments/${id}`, {
-      method: 'DELETE',
-      headers: getHeaders()
-    });
-    return handleResponse<any>(res);
-  },
-
-  // Announcement API
-  async getAnnouncements() {
-    const res = await fetch(`${BASE_URL}/announcements`, {
-      headers: getHeaders()
-    });
-    return handleResponse<any[]>(res);
-  },
-  async createAnnouncement(payload: any) {
-    const res = await fetch(`${BASE_URL}/announcements`, {
-      method: 'POST',
-      headers: getHeaders(),
-      body: JSON.stringify(payload)
-    });
-    return handleResponse<any>(res);
-  },
-  async updateAnnouncement(id: number, payload: any) {
-    const res = await fetch(`${BASE_URL}/announcements/${id}`, {
-      method: 'PUT',
-      headers: getHeaders(),
-      body: JSON.stringify(payload)
-    });
-    return handleResponse<any>(res);
-  },
-  async deleteAnnouncement(id: number) {
-    const res = await fetch(`${BASE_URL}/announcements/${id}`, {
-      method: 'DELETE',
-      headers: getHeaders()
-    });
-    return handleResponse<any>(res);
-  },
-
-  // Notification API
-  async getMyNotifications() {
-    const res = await fetch(`${BASE_URL}/notifications`, {
-      headers: getHeaders()
-    });
-    return handleResponse<any[]>(res);
-  },
-  async getUnreadCount() {
-    const res = await fetch(`${BASE_URL}/notifications/unread-count`, {
-      headers: getHeaders()
-    });
-    return handleResponse<number>(res);
-  },
-  async markNotificationAsRead(id: number) {
-    const res = await fetch(`${BASE_URL}/notifications/${id}/read`, {
-      method: 'PUT',
-      headers: getHeaders()
-    });
-    return handleResponse<any>(res);
-  },
-  async markAllNotificationsAsRead() {
-    const res = await fetch(`${BASE_URL}/notifications/read-all`, {
-      method: 'PUT',
-      headers: getHeaders()
-    });
-    return handleResponse<any>(res);
-  },
-  async deleteNotification(id: number) {
-    const res = await fetch(`${BASE_URL}/notifications/${id}`, {
-      method: 'DELETE',
-      headers: getHeaders()
     });
     return handleResponse<any>(res);
   }
