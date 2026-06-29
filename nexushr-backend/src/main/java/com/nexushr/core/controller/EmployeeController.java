@@ -47,7 +47,17 @@ public class EmployeeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id) {
+    public ResponseEntity<Employee> getEmployeeById(@PathVariable Long id, Authentication authentication) {
+        boolean isPrivileged = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER") ||
+                               a.getAuthority().equals("ROLE_ADMIN") ||
+                               a.getAuthority().equals("ROLE_HR"));
+        if (!isPrivileged) {
+            Employee caller = employeeService.getEmployeeByUsername(authentication.getName());
+            if (!caller.getId().equals(id)) {
+                return ResponseEntity.status(403).build();
+            }
+        }
         return ResponseEntity.ok(employeeService.getEmployeeById(id));
     }
 
@@ -58,7 +68,17 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee) {
+    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee, Authentication authentication) {
+        boolean isPrivileged = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER") ||
+                               a.getAuthority().equals("ROLE_ADMIN") ||
+                               a.getAuthority().equals("ROLE_HR"));
+        if (!isPrivileged) {
+            Employee caller = employeeService.getEmployeeByUsername(authentication.getName());
+            if (!caller.getId().equals(id)) {
+                return ResponseEntity.status(403).build();
+            }
+        }
         return ResponseEntity.ok(employeeService.updateEmployee(id, employee));
     }
 

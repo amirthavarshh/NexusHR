@@ -17,6 +17,9 @@ async function handleResponse<T>(response: Response): Promise<T> {
     } catch {
       errorMsg = response.statusText || errorMsg;
     }
+    if (response.status === 401) {
+      window.dispatchEvent(new Event('auth-unauthorized'));
+    }
     throw new Error(errorMsg);
   }
   
