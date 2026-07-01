@@ -55,9 +55,12 @@ public class GoalController {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found"));
 
         if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER")) &&
-            authentication.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_HR"))) {
-            if (employee.getManager() == null || !employee.getManager().getUser().getUsername().equals(authentication.getName())) {
-                throw new org.springframework.security.access.AccessDeniedException("You can only assign goals to your direct reports");
+                authentication.getAuthorities().stream()
+                        .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_HR"))) {
+            if (employee.getManager() == null
+                    || !employee.getManager().getUser().getUsername().equals(authentication.getName())) {
+                throw new org.springframework.security.access.AccessDeniedException(
+                        "You can only assign goals to your direct reports");
             }
         }
 
@@ -75,7 +78,8 @@ public class GoalController {
 
     @GetMapping("/employee/{employeeId}")
     public ResponseEntity<List<Goal>> getEmployeeGoals(@PathVariable Long employeeId, Authentication authentication) {
-        // Verification: Employees can only view their own goals. Managers/HR/Admin can view any.
+        // Verification: Employees can only view their own goals. Managers/HR/Admin can
+        // view any.
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
@@ -88,7 +92,8 @@ public class GoalController {
         } else if (user.getRole().name().equals("MANAGER")) {
             Employee targetEmp = employeeRepository.findById(employeeId)
                     .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found"));
-            if (targetEmp.getManager() == null || !targetEmp.getManager().getUser().getUsername().equals(authentication.getName())) {
+            if (targetEmp.getManager() == null
+                    || !targetEmp.getManager().getUser().getUsername().equals(authentication.getName())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied: Not the direct manager");
             }
         }
@@ -97,7 +102,8 @@ public class GoalController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<Goal> updateGoalStatus(@PathVariable Long id, @RequestBody Map<String, String> payload, Authentication authentication) {
+    public ResponseEntity<Goal> updateGoalStatus(@PathVariable Long id, @RequestBody Map<String, String> payload,
+            Authentication authentication) {
         String statusStr = payload.get("status");
         GoalStatus newStatus;
         try {
@@ -109,7 +115,8 @@ public class GoalController {
         Goal goal = goalRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Goal not found"));
 
-        // Verification: Employees can only update their own goals. Managers/HR/Admin can update any.
+        // Verification: Employees can only update their own goals. Managers/HR/Admin
+        // can update any.
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
@@ -121,7 +128,8 @@ public class GoalController {
             }
         } else if (user.getRole().name().equals("MANAGER")) {
             Employee targetEmp = goal.getEmployee();
-            if (targetEmp.getManager() == null || !targetEmp.getManager().getUser().getUsername().equals(authentication.getName())) {
+            if (targetEmp.getManager() == null
+                    || !targetEmp.getManager().getUser().getUsername().equals(authentication.getName())) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Access denied: Not the direct manager");
             }
         }
