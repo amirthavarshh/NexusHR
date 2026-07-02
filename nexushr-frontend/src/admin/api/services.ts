@@ -352,11 +352,11 @@ export const adminServices = {
         type: l.type,
         status: l.status,
         approvedBy: l.approvedBy,
-        workflowStage: l.status === 'PENDING' ? 'HR_APPROVAL' : 'COMPLETED'
+        workflowStage: l.status.includes('PENDING') ? 'HR_APPROVAL' : 'COMPLETED'
       }));
     } catch {
       return getLocalStorageData<LeaveRequest[]>('leaves', [
-        { id: 1, requesterId: 1, requesterName: 'Jessica Day', requesterRole: 'HR', startDate: '2026-07-10', endDate: '2026-07-15', reason: 'Summer Vacation', type: 'ANNUAL', status: 'PENDING', workflowStage: 'ADMIN_APPROVAL' },
+        { id: 1, requesterId: 1, requesterName: 'Jessica Day', requesterRole: 'HR', startDate: '2026-07-10', endDate: '2026-07-15', reason: 'Summer Vacation', type: 'ANNUAL', status: 'PENDING_MANAGER_APPROVAL', workflowStage: 'ADMIN_APPROVAL' },
         { id: 2, requesterId: 5, requesterName: 'Wade Wilson', requesterRole: 'EMPLOYEE', startDate: '2026-06-28', endDate: '2026-06-30', reason: 'Medical Leave', type: 'SICK', status: 'APPROVED', approvedBy: 'Sarah Connor', workflowStage: 'COMPLETED' }
       ]);
     }

@@ -31,7 +31,7 @@ server:
 security:
   jwt:
     # Base64-encoded secret key (at least 256 bits). Here is a pre-generated valid secret for development:
-    secret-key: ${JWT_SECRET_KEY}
+    secret-key: ${JWT_SECRET_KEY:ZGVmYXVsdC1uZXh1cy1oci1zdXBlci1zZWNyZXQtand0LWtleS0yNTYtYml0}
     expiration-time: 86400000 # 24 hours in milliseconds
 
 app:

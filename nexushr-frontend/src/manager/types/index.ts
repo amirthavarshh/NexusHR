@@ -32,7 +32,7 @@ export interface TeamLeaveRequest {
   startDate: string;
   endDate: string;
   reason: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: 'PENDING_MANAGER_APPROVAL' | 'PENDING_HR_APPROVAL' | 'PENDING_ADMIN_APPROVAL' | 'APPROVED' | 'REJECTED';
   workflowStage: string;
   approvedBy?: string;
 }

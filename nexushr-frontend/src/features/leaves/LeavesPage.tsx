@@ -94,7 +94,7 @@ export const LeavesPage: React.FC = () => {
       ? teamLeaves : personalLeaves;
     
     return {
-      pending: source.filter(l => l.status === 'PENDING').length,
+      pending: source.filter(l => l.status.includes('PENDING')).length,
       planned: source.filter(l => l.status === 'APPROVED' && new Date(l.startDate) > today).length,
       taken: source.filter(l => l.status === 'APPROVED' && new Date(l.endDate) < today && new Date(l.endDate).getFullYear() === curYear).length
     };
@@ -103,7 +103,7 @@ export const LeavesPage: React.FC = () => {
   if (!session) return null;
 
   const filteredTeamLeaves = teamLeaves.filter(l => leaveFilter === 'ALL' || l.status === leaveFilter);
-  const pendingApprovals = teamLeaves.filter(l => l.status === 'PENDING');
+  const pendingApprovals = teamLeaves.filter(l => l.status.includes('PENDING'));
 
   return (
     <div className="space-y-6">
@@ -291,7 +291,7 @@ export const LeavesPage: React.FC = () => {
                             </td>
                             <td className="py-3 text-xs max-w-[150px] truncate" title={req.reason}>{req.reason}</td>
                             <td className="py-3">
-                              <Badge variant={req.status === 'APPROVED' ? 'success' : req.status === 'PENDING' ? 'warning' : 'destructive'}>
+                              <Badge variant={req.status === 'APPROVED' ? 'success' : req.status.includes('PENDING') ? 'warning' : 'destructive'}>
                                 {req.status}
                               </Badge>
                             </td>
@@ -333,7 +333,7 @@ export const LeavesPage: React.FC = () => {
                           </td>
                           <td className="py-3 text-xs max-w-[150px] truncate" title={req.reason}>{req.reason}</td>
                           <td className="py-3">
-                            <Badge variant={req.status === 'APPROVED' ? 'success' : req.status === 'PENDING' ? 'warning' : 'destructive'}>
+                            <Badge variant={req.status === 'APPROVED' ? 'success' : req.status.includes('PENDING') ? 'warning' : 'destructive'}>
                               {req.status}
                             </Badge>
                           </td>

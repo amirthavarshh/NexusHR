@@ -32,7 +32,7 @@ export const LeaveCenter: React.FC = () => {
     setTimeout(() => setToast(null), 3000);
   };
 
-  const pending = leaves.filter(l => l.status === 'PENDING');
+  const pending = leaves.filter(l => l.status.includes('PENDING'));
   const approved = leaves.filter(l => l.status === 'APPROVED');
   const rejected = leaves.filter(l => l.status === 'REJECTED');
 
@@ -62,7 +62,7 @@ export const LeaveCenter: React.FC = () => {
   const calDays = Array.from({ length: 14 }, (_, i) => {
     const d = new Date(today); d.setDate(today.getDate() + i); return d;
   });
-  const activeLeaves = leaves.filter(l => l.status === 'APPROVED' || l.status === 'PENDING');
+  const activeLeaves = leaves.filter(l => l.status === 'APPROVED' || l.status.includes('PENDING'));
 
   const LeaveTable: React.FC<{ rows: LeaveRequest[] }> = ({ rows }) => (
     rows.length === 0 ? (

@@ -35,3 +35,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Dev scratch files — never commit these ###
+scratch/

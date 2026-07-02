@@ -29,8 +29,8 @@ const seedEmployees: Employee[] = [
 ];
 
 const seedLeaves: LeaveRequest[] = [
-  { id: 1, employee: seedEmployees[0], startDate: '2026-07-01', endDate: '2026-07-05', reason: 'Annual vacation', type: 'ANNUAL', status: 'PENDING' },
-  { id: 2, employee: seedEmployees[2], startDate: '2026-07-10', endDate: '2026-07-12', reason: 'Medical appointment', type: 'SICK', status: 'PENDING' },
+  { id: 1, employee: seedEmployees[0], startDate: '2026-07-01', endDate: '2026-07-05', reason: 'Annual vacation', type: 'ANNUAL', status: 'PENDING_MANAGER_APPROVAL' },
+  { id: 2, employee: seedEmployees[2], startDate: '2026-07-10', endDate: '2026-07-12', reason: 'Medical appointment', type: 'SICK', status: 'PENDING_MANAGER_APPROVAL' },
   { id: 3, employee: seedEmployees[4], startDate: '2026-06-20', endDate: '2026-06-22', reason: 'Family event', type: 'ANNUAL', status: 'APPROVED', approvedBy: 'hr_manager' },
   { id: 4, employee: seedEmployees[1], startDate: '2026-07-15', endDate: '2026-07-16', reason: 'Personal errands', type: 'UNPAID', status: 'REJECTED' },
   { id: 5, employee: seedEmployees[5], startDate: '2026-07-08', endDate: '2026-07-25', reason: 'Medical leave', type: 'SICK', status: 'APPROVED', approvedBy: 'hr_manager' },
@@ -166,7 +166,7 @@ export const hrServices = {
         averageSalary: metrics.averageSalary,
         totalPayroll: payrolls.reduce((s, p) => s + p.netSalary, 0),
         averagePerformance: metrics.averagePerformance,
-        pendingLeaves: leaves.filter(l => l.status === 'PENDING').length,
+        pendingLeaves: leaves.filter(l => l.status.includes('PENDING')).length,
         departmentDistribution: metrics.departmentDistribution,
         leaveTypeBreakdown: leaves.reduce((acc: Record<string, number>, l) => { acc[l.type] = (acc[l.type] || 0) + 1; return acc; }, {}),
       };
@@ -184,7 +184,7 @@ export const hrServices = {
         averageSalary: Math.round(employees.reduce((s, e) => s + e.salary, 0) / employees.length),
         totalPayroll: payrolls.reduce((s, p) => s + p.netSalary, 0),
         averagePerformance: parseFloat((employees.reduce((s, e) => s + (e.performanceRating || 0), 0) / employees.filter(e => e.performanceRating).length).toFixed(1)),
-        pendingLeaves: leaves.filter(l => l.status === 'PENDING').length,
+        pendingLeaves: leaves.filter(l => l.status.includes('PENDING')).length,
         departmentDistribution: deptDist,
         leaveTypeBreakdown: leaveBreak,
       };

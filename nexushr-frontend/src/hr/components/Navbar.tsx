@@ -16,7 +16,7 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode }) => {
 
   useEffect(() => {
     hrServices.getAllLeaves().then(leaves => {
-      setPendingLeaves(leaves.filter(l => l.status === 'PENDING').length);
+      setPendingLeaves(leaves.filter(l => l.status.includes('PENDING')).length);
     }).catch(() => {});
     hrServices.getAllPayrolls().then(payrolls => {
       setPendingPayrolls(payrolls.filter(p => p.status === 'DRAFT').length);

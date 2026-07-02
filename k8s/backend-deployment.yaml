@@ -51,6 +51,13 @@ spec:
                 configMapKeyRef:
                   name: nexushr-config
                   key: SECURITY_JWT_EXPIRATION_TIME
+
+            # Activates the 'prod' Spring profile — disables DataInitializer dev seed data
+            - name: SPRING_PROFILES_ACTIVE
+              valueFrom:
+                configMapKeyRef:
+                  name: nexushr-config
+                  key: SPRING_PROFILES_ACTIVE
           livenessProbe:
             tcpSocket:
               port: 8080

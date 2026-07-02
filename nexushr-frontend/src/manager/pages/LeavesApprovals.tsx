@@ -50,11 +50,11 @@ export const LeavesApprovals: React.FC = () => {
   };
 
   // Leave aggregates
-  const pendingCount = leaves.filter((l: any) => l.status === 'PENDING').length;
+  const pendingCount = leaves.filter((l: any) => l.status.includes('PENDING')).length;
   const approvedCount = leaves.filter((l: any) => l.status === 'APPROVED').length;
   const rejectedCount = leaves.filter((l: any) => l.status === 'REJECTED').length;
 
-  const pendingLeaves = leaves.filter((l: any) => l.status === 'PENDING');
+  const pendingLeaves = leaves.filter((l: any) => l.status.includes('PENDING'));
   const approvedLeaves = leaves.filter((l: any) => l.status === 'APPROVED');
   const rejectedLeaves = leaves.filter((l: any) => l.status === 'REJECTED');
 

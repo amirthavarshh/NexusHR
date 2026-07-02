@@ -90,7 +90,7 @@ export interface LeaveRequest {
   endDate: string;
   reason: string;
   type: 'ANNUAL' | 'SICK' | 'UNPAID';
-  status: 'PENDING' | 'APPROVED' | 'REJECTED';
+  status: 'PENDING_MANAGER_APPROVAL' | 'PENDING_HR_APPROVAL' | 'PENDING_ADMIN_APPROVAL' | 'APPROVED' | 'REJECTED';
   approvedBy?: string;
   workflowStage: 'MANAGER_APPROVAL' | 'HR_APPROVAL' | 'ADMIN_APPROVAL' | 'COMPLETED';
 }

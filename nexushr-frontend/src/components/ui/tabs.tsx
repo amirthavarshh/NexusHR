@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { createContext, useContext, useState } from 'react';
 
 interface TabsProps {
   defaultValue: string;
@@ -29,50 +29,51 @@ interface TabsContentProps {
   className?: string;
 }
 
+const TabsContext = createContext<{
+  activeTab: string;
+  setActiveTab: (v: string) => void;
+} | null>(null);
+
 export const Tabs: React.FC<TabsProps> = ({ 
   defaultValue, 
   children, 
   activeTabState,
   className = '' 
 }) => {
-  const localState = React.useState(defaultValue);
+  const localState = useState(defaultValue);
   const [activeTab, setActiveTab] = activeTabState || localState;
 
   return (
-    <div className={`space-y-4 ${className}`}>
-      {React.Children.map(children, child => {
-        if (React.isValidElement(child)) {
-          return React.cloneElement(child, { activeTab, setActiveTab } as any);
-        }
-        return child;
-      })}
-    </div>
+    <TabsContext.Provider value={{ activeTab, setActiveTab }}>
+      <div className={`space-y-4 ${className}`}>
+        {children}
+      </div>
+    </TabsContext.Provider>
   );
 };
 
 export const TabsList: React.FC<TabsListProps> = ({ 
   children, 
-  activeTab, 
-  setActiveTab,
   className = '' 
-}) => (
-  <div className={`flex border-b border-surface-border gap-6 ${className}`}>
-    {React.Children.map(children, child => {
-      if (React.isValidElement(child)) {
-        return React.cloneElement(child, { activeTab, setActiveTab } as any);
-      }
-      return child;
-    })}
-  </div>
-);
+}) => {
+  return (
+    <div className={`flex border-b border-surface-border gap-6 ${className}`}>
+      {children}
+    </div>
+  );
+};
 
 export const TabsTrigger: React.FC<TabsTriggerProps> = ({ 
   value, 
-  activeTab, 
-  setActiveTab, 
+  activeTab: propActiveTab, 
+  setActiveTab: propSetActiveTab, 
   children,
   className = '' 
 }) => {
+  const ctx = useContext(TabsContext);
+  const activeTab = propActiveTab ?? ctx?.activeTab;
+  const setActiveTab = propSetActiveTab ?? ctx?.setActiveTab;
+  
   const isActive = activeTab === value;
   return (
     <button
@@ -90,10 +91,13 @@ export const TabsTrigger: React.FC<TabsTriggerProps> = ({
 
 export const TabsContent: React.FC<TabsContentProps> = ({ 
   value, 
-  activeTab, 
+  activeTab: propActiveTab, 
   children,
   className = '' 
 }) => {
+  const ctx = useContext(TabsContext);
+  const activeTab = propActiveTab ?? ctx?.activeTab;
+  
   if (activeTab !== value) return null;
   return <div className={`animate-fadeIn ${className}`}>{children}</div>;
 };

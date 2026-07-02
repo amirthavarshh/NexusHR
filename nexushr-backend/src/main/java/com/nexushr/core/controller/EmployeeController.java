@@ -67,24 +67,27 @@ public class EmployeeController {
 
     @PutMapping("/{id}")
     public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee, Authentication authentication) {
-        boolean isPrivileged = authentication.getAuthorities().stream()
+        boolean isAdminOrHr = authentication.getAuthorities().stream()
                 .anyMatch(a -> List.of("ROLE_ADMIN", "ROLE_HR").contains(a.getAuthority()));
-        
-        if (!isPrivileged) {
+
+        if (!isAdminOrHr) {
             if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER"))) {
+                // Managers may update direct reports only — but not their salary/performanceRating (HR-only fields)
                 Employee targetEmp = employeeService.getEmployeeById(id);
                 if (targetEmp.getManager() == null || !targetEmp.getManager().getUser().getUsername().equals(authentication.getName())) {
                     throw new org.springframework.security.access.AccessDeniedException("You can only update your direct reports");
                 }
             } else {
-                // EMPLOYEE role
+                // EMPLOYEE role — can only update their own profile, and only safe fields
                 Employee self = employeeService.getEmployeeByUsername(authentication.getName());
                 if (!self.getId().equals(id)) {
                     throw new org.springframework.security.access.AccessDeniedException("Access denied");
                 }
             }
         }
-        return ResponseEntity.ok(employeeService.updateEmployee(id, employee));
+        // isAdminOrHr=true  → full update (salary, status, performanceRating, position, manager)
+        // isAdminOrHr=false → restricted update (name, email, phone only)
+        return ResponseEntity.ok(employeeService.updateEmployee(id, employee, isAdminOrHr));
     }
 
     @GetMapping("/metrics")

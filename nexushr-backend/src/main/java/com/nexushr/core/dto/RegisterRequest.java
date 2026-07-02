@@ -17,7 +17,8 @@ public class RegisterRequest {
     @Email(message = "Email must be valid")
     private String email;
 
-    @NotBlank(message = "Role is required (EMPLOYEE, MANAGER, ADMIN)")
+    // Optional: only honoured by the /auth/invite endpoint (ADMIN/HR only).
+    // The public /auth/register endpoint always assigns role=EMPLOYEE regardless of this value.
     private String role;
 
     // Constructors

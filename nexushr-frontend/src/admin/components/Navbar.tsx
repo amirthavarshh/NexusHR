@@ -18,7 +18,7 @@ export const Navbar: React.FC<NavbarProps> = ({ darkMode, setDarkMode }) => {
   useEffect(() => {
     // Check pending leave requests for the indicator
     adminServices.getAllLeaves().then(leaves => {
-      const pending = leaves.filter(l => l.status === 'PENDING');
+      const pending = leaves.filter(l => l.status.includes('PENDING'));
       setPendingLeaveCount(pending.length);
     }).catch(() => {});
   }, []);

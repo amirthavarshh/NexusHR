@@ -36,8 +36,8 @@ const seedAttendanceLogs: TeamAttendance[] = [
 ];
 
 const seedLeaveRequests: TeamLeaveRequest[] = [
-  { id: 301, requesterId: 101, requesterName: 'John Doe', requesterRole: 'EMPLOYEE', type: 'Annual Leave', startDate: '2026-07-10', endDate: '2026-07-15', reason: 'Family summer vacation trip', status: 'PENDING', workflowStage: 'MANAGER_APPROVAL' },
-  { id: 302, requesterId: 104, requesterName: 'Clara Oswald', requesterRole: 'EMPLOYEE', type: 'Sick Leave', startDate: '2026-06-29', endDate: '2026-06-30', reason: 'High fever and dental appointment', status: 'PENDING', workflowStage: 'MANAGER_APPROVAL' },
+  { id: 301, requesterId: 101, requesterName: 'John Doe', requesterRole: 'EMPLOYEE', type: 'Annual Leave', startDate: '2026-07-10', endDate: '2026-07-15', reason: 'Family summer vacation trip', status: 'PENDING_MANAGER_APPROVAL', workflowStage: 'MANAGER_APPROVAL' },
+  { id: 302, requesterId: 104, requesterName: 'Clara Oswald', requesterRole: 'EMPLOYEE', type: 'Sick Leave', startDate: '2026-06-29', endDate: '2026-06-30', reason: 'High fever and dental appointment', status: 'PENDING_MANAGER_APPROVAL', workflowStage: 'MANAGER_APPROVAL' },
   { id: 303, requesterId: 103, requesterName: 'Bob Johnson', requesterRole: 'EMPLOYEE', type: 'Unpaid Leave', startDate: '2026-06-15', endDate: '2026-06-17', reason: 'Moving to new apartment relocation', status: 'APPROVED', workflowStage: 'HR_APPROVAL', approvedBy: 'IT Manager' }
 ];
 
@@ -74,15 +74,15 @@ export const managerServices = {
       return {
         totalDirectReports: reports.length,
         attendanceToday: presentRate,
-        pendingLeaveRequests: leaves.filter(l => l.status === 'PENDING').length,
-        activeGoalsCount: goals.filter(g => g.status === 'PENDING' || g.status === 'IN_PROGRESS').length
+        pendingLeaveRequests: leaves.filter(l => l.status.includes('PENDING')).length,
+        activeGoalsCount: goals.filter(g => g.status.includes('PENDING') || g.status === 'IN_PROGRESS').length
       };
     } catch {
       return {
         totalDirectReports: seedDirectReports.length,
         attendanceToday: 80,
-        pendingLeaveRequests: seedLeaveRequests.filter(l => l.status === 'PENDING').length,
-        activeGoalsCount: seedGoals.filter(g => g.status === 'PENDING' || g.status === 'IN_PROGRESS').length
+        pendingLeaveRequests: seedLeaveRequests.filter(l => l.status.includes('PENDING')).length,
+        activeGoalsCount: seedGoals.filter(g => g.status.includes('PENDING') || g.status === 'IN_PROGRESS').length
       };
     }
   },

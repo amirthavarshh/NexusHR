@@ -53,11 +53,11 @@ export const LeaveManagement: React.FC = () => {
   };
 
   // Leave aggregates
-  const pendingCount = leaves.filter((l: any) => l.status === 'PENDING').length;
+  const pendingCount = leaves.filter((l: any) => l.status.includes('PENDING')).length;
   const approvedCount = leaves.filter((l: any) => l.status === 'APPROVED').length;
   const rejectedCount = leaves.filter((l: any) => l.status === 'REJECTED').length;
 
-  const pendingLeaves = leaves.filter((l: any) => l.status === 'PENDING');
+  const pendingLeaves = leaves.filter((l: any) => l.status.includes('PENDING'));
   const approvedLeaves = leaves.filter((l: any) => l.status === 'APPROVED');
   const rejectedLeaves = leaves.filter((l: any) => l.status === 'REJECTED');
 
@@ -74,7 +74,7 @@ export const LeaveManagement: React.FC = () => {
         <div className="flex items-center gap-2 text-[10px] text-foreground/50 font-bold font-mono">
           <span className="text-warning font-bold bg-warning/10 px-1 py-0.5 rounded">HR Applied</span>
           <ArrowRight size={10} />
-          <span className={`px-1 py-0.5 rounded ${req.status === 'PENDING' ? 'text-warning font-extrabold animate-pulse bg-warning/10' : 'text-foreground/40 font-normal bg-surface-muted'}`}>Admin Review</span>
+          <span className={`px-1 py-0.5 rounded ${req.status.includes('PENDING') ? 'text-warning font-extrabold animate-pulse bg-warning/10' : 'text-foreground/40 font-normal bg-surface-muted'}`}>Admin Review</span>
           <ArrowRight size={10} />
           <span className={`px-1 py-0.5 rounded ${req.status === 'APPROVED' ? 'text-emerald-500 font-extrabold bg-emerald-500/10' : 'text-foreground/40 font-normal bg-surface-muted'}`}>Approved</span>
         </div>

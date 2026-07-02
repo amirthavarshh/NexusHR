@@ -2,7 +2,7 @@ export type Role = 'EMPLOYEE' | 'MANAGER' | 'ADMIN' | 'HR';
 export type EmployeeStatus = 'ACTIVE' | 'ON_LEAVE' | 'TERMINATED';
 export type AttendanceStatus = 'PRESENT' | 'ABSENT' | 'LATE' | 'HALF_DAY';
 export type LeaveType = 'ANNUAL' | 'SICK' | 'UNPAID';
-export type LeaveStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+export type LeaveStatus = 'PENDING_MANAGER_APPROVAL' | 'PENDING_HR_APPROVAL' | 'PENDING_ADMIN_APPROVAL' | 'APPROVED' | 'REJECTED';
 export type PayrollStatus = 'DRAFT' | 'PAID';
 export type GoalStatus = 'PENDING' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
 

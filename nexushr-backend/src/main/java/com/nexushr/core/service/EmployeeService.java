@@ -77,29 +77,45 @@ public class EmployeeService {
                 .orElseThrow(() -> new IllegalArgumentException("Employee profile not found for user: " + username));
     }
 
-    public Employee updateEmployee(Long id, Employee updatedEmployee) {
+    /**
+     * Full update — for ADMIN and HR only. Copies all fields including
+     * salary, position, status, performanceRating, and manager assignment.
+     */
+    public Employee updateEmployee(Long id, Employee updatedEmployee, boolean isPrivileged) {
         Employee employee = getEmployeeById(id);
-        employee.setFirstName(updatedEmployee.getFirstName());
-        employee.setLastName(updatedEmployee.getLastName());
-        employee.setEmail(updatedEmployee.getEmail());
-        employee.setPhone(updatedEmployee.getPhone());
-        employee.setDepartment(updatedEmployee.getDepartment());
-        employee.setPosition(updatedEmployee.getPosition());
-        employee.setSalary(updatedEmployee.getSalary());
-        
-        if (updatedEmployee.getManager() != null && updatedEmployee.getManager().getId() != null) {
-            Employee manager = getEmployeeById(updatedEmployee.getManager().getId());
-            employee.setManager(manager);
-        } else {
-            employee.setManager(null);
+
+        // Safe fields — any authenticated user editing their own record
+        if (updatedEmployee.getFirstName() != null) employee.setFirstName(updatedEmployee.getFirstName());
+        if (updatedEmployee.getLastName() != null)  employee.setLastName(updatedEmployee.getLastName());
+        if (updatedEmployee.getEmail() != null)      employee.setEmail(updatedEmployee.getEmail());
+        if (updatedEmployee.getPhone() != null)      employee.setPhone(updatedEmployee.getPhone());
+
+        if (isPrivileged) {
+            // Privileged-only fields — ADMIN / HR only
+            if (updatedEmployee.getDepartment() != null)  employee.setDepartment(updatedEmployee.getDepartment());
+            if (updatedEmployee.getPosition() != null)    employee.setPosition(updatedEmployee.getPosition());
+            if (updatedEmployee.getSalary() != null)      employee.setSalary(updatedEmployee.getSalary());
+            if (updatedEmployee.getStatus() != null)      employee.setStatus(updatedEmployee.getStatus());
+            if (updatedEmployee.getPerformanceRating() != null)
+                employee.setPerformanceRating(updatedEmployee.getPerformanceRating());
+
+            if (updatedEmployee.getManager() != null && updatedEmployee.getManager().getId() != null) {
+                Employee manager = getEmployeeById(updatedEmployee.getManager().getId());
+                employee.setManager(manager);
+            } else if (updatedEmployee.getManager() == null) {
+                employee.setManager(null);
+            }
         }
-        if (updatedEmployee.getStatus() != null) {
-            employee.setStatus(updatedEmployee.getStatus());
-        }
-        if (updatedEmployee.getPerformanceRating() != null) {
-            employee.setPerformanceRating(updatedEmployee.getPerformanceRating());
-        }
+
         return employeeRepository.save(employee);
+    }
+
+    /**
+     * Convenience overload used internally (e.g., DataInitializer or service-to-service).
+     * Treated as a privileged call.
+     */
+    public Employee updateEmployee(Long id, Employee updatedEmployee) {
+        return updateEmployee(id, updatedEmployee, true);
     }
 
     public Map<String, Object> getWorkforceMetrics() {
