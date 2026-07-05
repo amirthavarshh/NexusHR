@@ -67,6 +67,10 @@ public class EmployeeService {
         return employeeRepository.findAll();
     }
 
+    public List<Employee> getEmployeesByDepartment(String department) {
+        return employeeRepository.findByDepartment(department);
+    }
+
     public Employee getEmployeeById(Long id) {
         return employeeRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Employee not found with id: " + id));

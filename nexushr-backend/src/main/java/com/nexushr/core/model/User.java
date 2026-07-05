@@ -33,7 +33,6 @@ public class User {
         createdAt = LocalDateTime.now();
     }
 
-    // Constructors
     public User() {
     }
 
@@ -46,7 +45,6 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -95,7 +93,6 @@ public class User {
         this.createdAt = createdAt;
     }
 
-    // Builder Pattern
     public static UserBuilder builder() {
         return new UserBuilder();
     }

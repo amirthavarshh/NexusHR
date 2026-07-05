@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { RefreshCw } from 'lucide-react';
+import { RefreshCw, Download } from 'lucide-react';
 import { Card, Button, Input, Badge } from '../../components/ui';
 
 interface PayrollPageProps {
@@ -84,6 +84,34 @@ export const PayrollPage: React.FC<PayrollPageProps> = ({ roleView }) => {
     });
   };
 
+  const handleDownloadPayslip = (row: any) => {
+    const slipText = `
+===================================
+            NEXUS HR
+          PAYROLL SLIP
+===================================
+Employee: ${row.employee?.firstName || 'Self'} ${row.employee?.lastName || ''}
+Pay Period: ${formatDate(row.payPeriodStart)} - ${formatDate(row.payPeriodEnd)}
+Status: ${row.status}
+Processed At: ${row.processedAt ? formatDate(row.processedAt) : 'N/A'}
+
+-----------------------------------
+Basic Salary:  $${row.basicSalary.toLocaleString()}
+Allowances:    +$${row.allowances.toLocaleString()}
+Deductions:    -$${row.deductions.toLocaleString()}
+-----------------------------------
+NET SALARY:    $${row.netSalary.toLocaleString()}
+===================================
+    `;
+    const blob = new Blob([slipText.trim()], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `Payslip_${formatDate(row.payPeriodStart).replace(/[\s,]/g, '_')}.txt`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   if (!session) return null;
 
   return (
@@ -152,7 +180,14 @@ export const PayrollPage: React.FC<PayrollPageProps> = ({ roleView }) => {
                             {row.status}
                           </Badge>
                         </td>
-                        <td className="py-3 text-right">
+                        <td className="py-3 text-right flex items-center justify-end gap-2">
+                          <button 
+                            onClick={() => handleDownloadPayslip(row)}
+                            className="p-1 rounded text-foreground/50 hover:text-primary hover:bg-surface-muted transition-all"
+                            title="Download Payslip"
+                          >
+                            <Download size={14} />
+                          </button>
                           {row.status !== 'PAID' ? (
                             <Button
                               onClick={() => paySalaryMut.mutate(row.id)}
@@ -194,6 +229,7 @@ export const PayrollPage: React.FC<PayrollPageProps> = ({ roleView }) => {
                     <th className="py-2.5">Net Salary</th>
                     <th className="py-2.5">Status</th>
                     <th className="py-2.5">Paid Date</th>
+                    <th className="py-2.5 text-right">Action</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -211,6 +247,16 @@ export const PayrollPage: React.FC<PayrollPageProps> = ({ roleView }) => {
                       </td>
                       <td className="py-3 font-mono text-xs text-foreground/50">
                         {row.processedAt ? formatDate(row.processedAt) : '—'}
+                      </td>
+                      <td className="py-3 text-right">
+                        <button 
+                          onClick={() => handleDownloadPayslip(row)}
+                          className="p-1.5 rounded text-foreground/50 hover:text-primary hover:bg-surface-muted transition-all inline-flex items-center gap-1"
+                          title="Download Payslip"
+                        >
+                          <Download size={14} />
+                          <span className="text-[10px] uppercase font-bold">Download</span>
+                        </button>
                       </td>
                     </tr>
                   ))}

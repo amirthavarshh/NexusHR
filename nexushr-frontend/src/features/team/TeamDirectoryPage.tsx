@@ -7,8 +7,9 @@ import { EmployeeDetailDrawer } from './EmployeeDetailDrawer';
 import { Dialog as Modal, Card, Button, Input, Badge } from '../../components/ui';
 
 export const TeamDirectoryPage: React.FC = () => {
-  const { showToast, setupDepts } = useAuth();
+  const { showToast, setupDepts, session } = useAuth();
   const queryClient = useQueryClient();
+  const canManage = session?.role === 'MANAGER' || session?.role === 'ADMIN' || session?.role === 'HR';
   
   const [search, setSearch] = useState('');
   const [selectedDept, setSelectedDept] = useState<string>('ALL');
@@ -161,8 +162,9 @@ export const TeamDirectoryPage: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         
         {/* Register Employee Form */}
-        <Card className="p-6 h-fit border-t-4 border-t-primary shadow-sm animate-fadeIn">
-          <h3 className="text-lg font-bold text-foreground mb-4">Register Employee Profile</h3>
+        {canManage && (
+          <Card className="p-6 h-fit border-t-4 border-t-primary shadow-sm animate-fadeIn">
+            <h3 className="text-lg font-bold text-foreground mb-4">Register Employee Profile</h3>
           <p className="text-xs text-foreground/60 mb-4 font-medium">Create profile cards linked to unique workspace users.</p>
           
           <form onSubmit={handleRegisterEmployee} className="space-y-3">
@@ -219,9 +221,10 @@ export const TeamDirectoryPage: React.FC = () => {
             </Button>
           </form>
         </Card>
+        )}
 
         {/* Directory Listings Grid */}
-        <div className="lg:col-span-2 space-y-6">
+        <div className={`${canManage ? 'lg:col-span-2' : 'lg:col-span-3'} space-y-6`}>
           <Card className="p-6 border-t-4 border-t-orange-400 shadow-sm animate-fadeIn">
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <h3 className="text-lg font-bold text-foreground">Directory</h3>
@@ -291,7 +294,7 @@ export const TeamDirectoryPage: React.FC = () => {
         <EmployeeDetailDrawer 
           employee={selectedEmp}
           onClose={() => setSelectedEmp(null)}
-          onEditProfile={() => startEditProfile(selectedEmp)}
+          onEditProfile={canManage ? () => startEditProfile(selectedEmp) : undefined}
         />
       )}
 

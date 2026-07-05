@@ -20,8 +20,8 @@ public class PerformanceReviewRequest {
     @NotBlank(message = "Goals are required")
     private String goals;
 
-    // Constructors
-    public PerformanceReviewRequest() {}
+    public PerformanceReviewRequest() {
+    }
 
     public PerformanceReviewRequest(Long employeeId, Double rating, String feedback, String goals) {
         this.employeeId = employeeId;
@@ -30,16 +30,35 @@ public class PerformanceReviewRequest {
         this.goals = goals;
     }
 
-    // Getters and Setters
-    public Long getEmployeeId() { return employeeId; }
-    public void setEmployeeId(Long employeeId) { this.employeeId = employeeId; }
+    public Long getEmployeeId() {
+        return employeeId;
+    }
 
-    public Double getRating() { return rating; }
-    public void setRating(Double rating) { this.rating = rating; }
+    public void setEmployeeId(Long employeeId) {
+        this.employeeId = employeeId;
+    }
 
-    public String getFeedback() { return feedback; }
-    public void setFeedback(String feedback) { this.feedback = feedback; }
+    public Double getRating() {
+        return rating;
+    }
 
-    public String getGoals() { return goals; }
-    public void setGoals(String goals) { this.goals = goals; }
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
+    public String getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
+    }
+
+    public String getGoals() {
+        return goals;
+    }
+
+    public void setGoals(String goals) {
+        this.goals = goals;
+    }
 }

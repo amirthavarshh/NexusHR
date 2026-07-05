@@ -59,7 +59,7 @@ public class AuthService {
                 .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole().name())
-                .employeeId(null) // New user doesn't have employee profile yet
+                .employeeId(null)
                 .id(user.getId())
                 .build();
     }
@@ -111,7 +111,6 @@ public class AuthService {
 
         String token = jwtTokenProvider.generateToken(user.getUsername(), user.getRole().name());
 
-        // Find linked employee ID if exists
         Optional<Employee> employee = employeeRepository.findByUser(user);
         Long employeeId = employee.map(Employee::getId).orElse(null);
 

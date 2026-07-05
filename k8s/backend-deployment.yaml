@@ -17,7 +17,7 @@ spec:
       containers:
         - name: backend
           image: nexushr-backend:latest
-          imagePullPolicy: Never # Force local Minikube/Docker engine image reuse
+          imagePullPolicy: Never 
           ports:
             - containerPort: 8080
           envFrom:
@@ -52,7 +52,7 @@ spec:
                   name: nexushr-config
                   key: SECURITY_JWT_EXPIRATION_TIME
 
-            # Activates the 'prod' Spring profile — disables DataInitializer dev seed data
+            
             - name: SPRING_PROFILES_ACTIVE
               valueFrom:
                 configMapKeyRef:

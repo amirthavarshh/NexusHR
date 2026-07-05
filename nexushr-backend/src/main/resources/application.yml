@@ -28,12 +28,12 @@ server:
   servlet:
     context-path: /
 
-# Custom security / jwt keys
+
 security:
   jwt:
     # Base64-encoded secret key (at least 256 bits)
     secret-key: ${JWT_SECRET_KEY:ZGVmYXVsdC1uZXh1cy1oci1zdXBlci1zZWNyZXQtand0LWtleS0yNTYtYml0}
-    expiration-time: 86400000 # 24 hours in milliseconds
+    expiration-time: 86400000 
 
 app:
   notification:

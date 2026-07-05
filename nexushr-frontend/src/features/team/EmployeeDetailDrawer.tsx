@@ -8,7 +8,7 @@ import { Button, Input, Card, Badge } from '../../components/ui';
 interface EmployeeDetailDrawerProps {
   employee: any;
   onClose: () => void;
-  onEditProfile: () => void;
+  onEditProfile?: () => void;
 }
 
 export const EmployeeDetailDrawer: React.FC<EmployeeDetailDrawerProps> = ({ 
@@ -119,6 +119,7 @@ export const EmployeeDetailDrawer: React.FC<EmployeeDetailDrawerProps> = ({
           <span className="text-[10px] font-bold text-foreground/50 uppercase tracking-widest block mb-1">Employee Detail Card</span>
           <h2 className="text-xl font-bold text-foreground flex items-center gap-2">
             <span>{employee.firstName} {employee.lastName}</span>
+            {onEditProfile && (
             <button 
               onClick={onEditProfile}
               className="p-1 rounded text-foreground/50 hover:text-amber-500 hover:bg-surface-muted transition-all cursor-pointer"
@@ -126,6 +127,7 @@ export const EmployeeDetailDrawer: React.FC<EmployeeDetailDrawerProps> = ({
             >
               <Settings size={14} />
             </button>
+            )}
           </h2>
           <span className="text-xs text-foreground/60 block">{employee.position} | {employee.department}</span>
         </div>

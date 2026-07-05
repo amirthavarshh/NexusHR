@@ -34,7 +34,7 @@ public class Employee {
     private String phone;
 
     @Column(name = "department", nullable = false)
-    private String department; // Legacy field
+    private String department;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "department_id")
@@ -57,7 +57,6 @@ public class Employee {
     @Column(name = "performance_rating")
     private Double performanceRating;
 
-    // Constructors
     public Employee() {
     }
 
@@ -80,7 +79,6 @@ public class Employee {
         this.performanceRating = performanceRating;
     }
 
-    // Getters and Setters
     public Long getId() {
         return id;
     }
@@ -193,7 +191,6 @@ public class Employee {
         this.performanceRating = performanceRating;
     }
 
-    // Builder
     public static EmployeeBuilder builder() {
         return new EmployeeBuilder();
     }

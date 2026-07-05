@@ -23,7 +23,7 @@ public class DatabaseSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // 1. Seed Default Departments if they don't exist
+
         List<String> defaultDepartments = Arrays.asList("IT", "HR", "Finance", "Sales", "Administration", "R&D");
 
         for (String deptName : defaultDepartments) {
@@ -34,11 +34,10 @@ public class DatabaseSeeder implements CommandLineRunner {
             }
         }
 
-        // 2. Migrate existing employees to use the Department entity
         List<Employee> employees = employeeRepository.findAll();
         for (Employee emp : employees) {
             if (emp.getDepartmentEntity() == null && emp.getDepartment() != null) {
-                // Find or create the department
+
                 Department dept = departmentRepository.findByDepartmentName(emp.getDepartment())
                         .orElseGet(() -> {
                             Department newDept = new Department(emp.getDepartment());

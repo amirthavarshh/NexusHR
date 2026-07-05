@@ -6,8 +6,8 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "leave_requests", indexes = {
-    @Index(name = "idx_leave_emp", columnList = "employee_id"),
-    @Index(name = "idx_leave_status", columnList = "status")
+        @Index(name = "idx_leave_emp", columnList = "employee_id"),
+        @Index(name = "idx_leave_status", columnList = "status")
 })
 public class LeaveRequest {
     @Id
@@ -46,11 +46,11 @@ public class LeaveRequest {
         createdAt = LocalDateTime.now();
     }
 
-    // Constructors
-    public LeaveRequest() {}
+    public LeaveRequest() {
+    }
 
-    public LeaveRequest(Long id, Employee employee, LocalDate startDate, LocalDate endDate, String reason, 
-                        LeaveType type, LeaveStatus status, String approvedBy, LocalDateTime createdAt) {
+    public LeaveRequest(Long id, Employee employee, LocalDate startDate, LocalDate endDate, String reason,
+            LeaveType type, LeaveStatus status, String approvedBy, LocalDateTime createdAt) {
         this.id = id;
         this.employee = employee;
         this.startDate = startDate;
@@ -62,35 +62,78 @@ public class LeaveRequest {
         this.createdAt = createdAt;
     }
 
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Employee getEmployee() { return employee; }
-    public void setEmployee(Employee employee) { this.employee = employee; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public LocalDate getStartDate() { return startDate; }
-    public void setStartDate(LocalDate startDate) { this.startDate = startDate; }
+    public Employee getEmployee() {
+        return employee;
+    }
 
-    public LocalDate getEndDate() { return endDate; }
-    public void setEndDate(LocalDate endDate) { this.endDate = endDate; }
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
 
-    public String getReason() { return reason; }
-    public void setReason(String reason) { this.reason = reason; }
+    public LocalDate getStartDate() {
+        return startDate;
+    }
 
-    public LeaveType getType() { return type; }
-    public void setType(LeaveType type) { this.type = type; }
+    public void setStartDate(LocalDate startDate) {
+        this.startDate = startDate;
+    }
 
-    public LeaveStatus getStatus() { return status; }
-    public void setStatus(LeaveStatus status) { this.status = status; }
+    public LocalDate getEndDate() {
+        return endDate;
+    }
 
-    public String getApprovedBy() { return approvedBy; }
-    public void setApprovedBy(String approvedBy) { this.approvedBy = approvedBy; }
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public String getReason() {
+        return reason;
+    }
 
-    // Builder
+    public void setReason(String reason) {
+        this.reason = reason;
+    }
+
+    public LeaveType getType() {
+        return type;
+    }
+
+    public void setType(LeaveType type) {
+        this.type = type;
+    }
+
+    public LeaveStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(LeaveStatus status) {
+        this.status = status;
+    }
+
+    public String getApprovedBy() {
+        return approvedBy;
+    }
+
+    public void setApprovedBy(String approvedBy) {
+        this.approvedBy = approvedBy;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(LocalDateTime createdAt) {
+        this.createdAt = createdAt;
+    }
+
     public static LeaveRequestBuilder builder() {
         return new LeaveRequestBuilder();
     }
@@ -106,17 +149,53 @@ public class LeaveRequest {
         private String approvedBy;
         private LocalDateTime createdAt;
 
-        LeaveRequestBuilder() {}
+        LeaveRequestBuilder() {
+        }
 
-        public LeaveRequestBuilder id(Long id) { this.id = id; return this; }
-        public LeaveRequestBuilder employee(Employee employee) { this.employee = employee; return this; }
-        public LeaveRequestBuilder startDate(LocalDate startDate) { this.startDate = startDate; return this; }
-        public LeaveRequestBuilder endDate(LocalDate endDate) { this.endDate = endDate; return this; }
-        public LeaveRequestBuilder reason(String reason) { this.reason = reason; return this; }
-        public LeaveRequestBuilder type(LeaveType type) { this.type = type; return this; }
-        public LeaveRequestBuilder status(LeaveStatus status) { this.status = status; return this; }
-        public LeaveRequestBuilder approvedBy(String approvedBy) { this.approvedBy = approvedBy; return this; }
-        public LeaveRequestBuilder createdAt(LocalDateTime createdAt) { this.createdAt = createdAt; return this; }
+        public LeaveRequestBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public LeaveRequestBuilder employee(Employee employee) {
+            this.employee = employee;
+            return this;
+        }
+
+        public LeaveRequestBuilder startDate(LocalDate startDate) {
+            this.startDate = startDate;
+            return this;
+        }
+
+        public LeaveRequestBuilder endDate(LocalDate endDate) {
+            this.endDate = endDate;
+            return this;
+        }
+
+        public LeaveRequestBuilder reason(String reason) {
+            this.reason = reason;
+            return this;
+        }
+
+        public LeaveRequestBuilder type(LeaveType type) {
+            this.type = type;
+            return this;
+        }
+
+        public LeaveRequestBuilder status(LeaveStatus status) {
+            this.status = status;
+            return this;
+        }
+
+        public LeaveRequestBuilder approvedBy(String approvedBy) {
+            this.approvedBy = approvedBy;
+            return this;
+        }
+
+        public LeaveRequestBuilder createdAt(LocalDateTime createdAt) {
+            this.createdAt = createdAt;
+            return this;
+        }
 
         public LeaveRequest build() {
             return new LeaveRequest(id, employee, startDate, endDate, reason, type, status, approvedBy, createdAt);

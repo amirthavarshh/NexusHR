@@ -40,9 +40,16 @@ public class EmployeeController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'HR')")
-    public ResponseEntity<List<Employee>> getAllEmployees() {
-        return ResponseEntity.ok(employeeService.getAllEmployees());
+    public ResponseEntity<List<Employee>> getAllEmployees(Authentication authentication) {
+        boolean isPrivileged = authentication.getAuthorities().stream()
+                .anyMatch(a -> List.of("ROLE_ADMIN", "ROLE_HR", "ROLE_MANAGER").contains(a.getAuthority()));
+
+        if (isPrivileged) {
+            return ResponseEntity.ok(employeeService.getAllEmployees());
+        } else {
+            Employee self = employeeService.getEmployeeByUsername(authentication.getName());
+            return ResponseEntity.ok(employeeService.getEmployeesByDepartment(self.getDepartment()));
+        }
     }
 
     @GetMapping("/{id}")
@@ -66,27 +73,29 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee, Authentication authentication) {
+    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee,
+            Authentication authentication) {
         boolean isAdminOrHr = authentication.getAuthorities().stream()
                 .anyMatch(a -> List.of("ROLE_ADMIN", "ROLE_HR").contains(a.getAuthority()));
 
         if (!isAdminOrHr) {
             if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER"))) {
-                // Managers may update direct reports only — but not their salary/performanceRating (HR-only fields)
+
                 Employee targetEmp = employeeService.getEmployeeById(id);
-                if (targetEmp.getManager() == null || !targetEmp.getManager().getUser().getUsername().equals(authentication.getName())) {
-                    throw new org.springframework.security.access.AccessDeniedException("You can only update your direct reports");
+                if (targetEmp.getManager() == null
+                        || !targetEmp.getManager().getUser().getUsername().equals(authentication.getName())) {
+                    throw new org.springframework.security.access.AccessDeniedException(
+                            "You can only update your direct reports");
                 }
             } else {
-                // EMPLOYEE role — can only update their own profile, and only safe fields
+
                 Employee self = employeeService.getEmployeeByUsername(authentication.getName());
                 if (!self.getId().equals(id)) {
                     throw new org.springframework.security.access.AccessDeniedException("Access denied");
                 }
             }
         }
-        // isAdminOrHr=true  → full update (salary, status, performanceRating, position, manager)
-        // isAdminOrHr=false → restricted update (name, email, phone only)
+
         return ResponseEntity.ok(employeeService.updateEmployee(id, employee, isAdminOrHr));
     }
 
@@ -100,7 +109,7 @@ public class EmployeeController {
     public ResponseEntity<List<Employee>> getTeammates(@PathVariable Long id, Authentication authentication) {
         boolean isPrivileged = authentication.getAuthorities().stream()
                 .anyMatch(a -> List.of("ROLE_ADMIN", "ROLE_HR").contains(a.getAuthority()));
-        
+
         if (!isPrivileged) {
             Employee emp = employeeService.getEmployeeByUsername(authentication.getName());
             if (!emp.getId().equals(id)) {
@@ -114,10 +123,13 @@ public class EmployeeController {
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'HR')")
     public ResponseEntity<Void> deleteEmployee(@PathVariable Long id, Authentication authentication) {
         if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_MANAGER")) &&
-            authentication.getAuthorities().stream().noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_HR"))) {
+                authentication.getAuthorities().stream()
+                        .noneMatch(a -> a.getAuthority().equals("ROLE_ADMIN") || a.getAuthority().equals("ROLE_HR"))) {
             Employee targetEmp = employeeService.getEmployeeById(id);
-            if (targetEmp.getManager() == null || !targetEmp.getManager().getUser().getUsername().equals(authentication.getName())) {
-                throw new org.springframework.security.access.AccessDeniedException("You can only delete your direct reports");
+            if (targetEmp.getManager() == null
+                    || !targetEmp.getManager().getUser().getUsername().equals(authentication.getName())) {
+                throw new org.springframework.security.access.AccessDeniedException(
+                        "You can only delete your direct reports");
             }
         }
         employeeService.deleteEmployee(id);

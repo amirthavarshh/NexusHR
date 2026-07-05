@@ -5,7 +5,7 @@ import java.time.LocalDate;
 
 @Entity
 @Table(name = "performance_reviews", indexes = {
-    @Index(name = "idx_review_emp", columnList = "employee_id")
+        @Index(name = "idx_review_emp", columnList = "employee_id")
 })
 public class PerformanceReview {
     @Id
@@ -32,10 +32,11 @@ public class PerformanceReview {
     @Column(columnDefinition = "TEXT")
     private String goals;
 
-    // Constructors
-    public PerformanceReview() {}
+    public PerformanceReview() {
+    }
 
-    public PerformanceReview(Long id, Employee employee, User reviewer, LocalDate reviewDate, Double rating, String feedback, String goals) {
+    public PerformanceReview(Long id, Employee employee, User reviewer, LocalDate reviewDate, Double rating,
+            String feedback, String goals) {
         this.id = id;
         this.employee = employee;
         this.reviewer = reviewer;
@@ -45,29 +46,62 @@ public class PerformanceReview {
         this.goals = goals;
     }
 
-    // Getters and Setters
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public Employee getEmployee() { return employee; }
-    public void setEmployee(Employee employee) { this.employee = employee; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public User getReviewer() { return reviewer; }
-    public void setReviewer(User reviewer) { this.reviewer = reviewer; }
+    public Employee getEmployee() {
+        return employee;
+    }
 
-    public LocalDate getReviewDate() { return reviewDate; }
-    public void setReviewDate(LocalDate reviewDate) { this.reviewDate = reviewDate; }
+    public void setEmployee(Employee employee) {
+        this.employee = employee;
+    }
 
-    public Double getRating() { return rating; }
-    public void setRating(Double rating) { this.rating = rating; }
+    public User getReviewer() {
+        return reviewer;
+    }
 
-    public String getFeedback() { return feedback; }
-    public void setFeedback(String feedback) { this.feedback = feedback; }
+    public void setReviewer(User reviewer) {
+        this.reviewer = reviewer;
+    }
 
-    public String getGoals() { return goals; }
-    public void setGoals(String goals) { this.goals = goals; }
+    public LocalDate getReviewDate() {
+        return reviewDate;
+    }
 
-    // Builder
+    public void setReviewDate(LocalDate reviewDate) {
+        this.reviewDate = reviewDate;
+    }
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
+    public String getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
+    }
+
+    public String getGoals() {
+        return goals;
+    }
+
+    public void setGoals(String goals) {
+        this.goals = goals;
+    }
+
     public static PerformanceReviewBuilder builder() {
         return new PerformanceReviewBuilder();
     }
@@ -81,15 +115,43 @@ public class PerformanceReview {
         private String feedback;
         private String goals;
 
-        PerformanceReviewBuilder() {}
+        PerformanceReviewBuilder() {
+        }
 
-        public PerformanceReviewBuilder id(Long id) { this.id = id; return this; }
-        public PerformanceReviewBuilder employee(Employee employee) { this.employee = employee; return this; }
-        public PerformanceReviewBuilder reviewer(User reviewer) { this.reviewer = reviewer; return this; }
-        public PerformanceReviewBuilder reviewDate(LocalDate reviewDate) { this.reviewDate = reviewDate; return this; }
-        public PerformanceReviewBuilder rating(Double rating) { this.rating = rating; return this; }
-        public PerformanceReviewBuilder feedback(String feedback) { this.feedback = feedback; return this; }
-        public PerformanceReviewBuilder goals(String goals) { this.goals = goals; return this; }
+        public PerformanceReviewBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public PerformanceReviewBuilder employee(Employee employee) {
+            this.employee = employee;
+            return this;
+        }
+
+        public PerformanceReviewBuilder reviewer(User reviewer) {
+            this.reviewer = reviewer;
+            return this;
+        }
+
+        public PerformanceReviewBuilder reviewDate(LocalDate reviewDate) {
+            this.reviewDate = reviewDate;
+            return this;
+        }
+
+        public PerformanceReviewBuilder rating(Double rating) {
+            this.rating = rating;
+            return this;
+        }
+
+        public PerformanceReviewBuilder feedback(String feedback) {
+            this.feedback = feedback;
+            return this;
+        }
+
+        public PerformanceReviewBuilder goals(String goals) {
+            this.goals = goals;
+            return this;
+        }
 
         public PerformanceReview build() {
             return new PerformanceReview(id, employee, reviewer, reviewDate, rating, feedback, goals);

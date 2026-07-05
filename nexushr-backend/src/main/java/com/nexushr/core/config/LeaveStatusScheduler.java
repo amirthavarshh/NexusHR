@@ -19,18 +19,16 @@ public class LeaveStatusScheduler {
     @Autowired
     private EmployeeRepository employeeRepository;
 
-    @Scheduled(cron = "0 5 0 * * *") // daily at 00:05
+    @Scheduled(cron = "0 5 0 * * *")
     public void syncEmployeeLeaveStatus() {
         LocalDate today = LocalDate.now();
 
-        // Start today's leaves
         leaveRequestRepository.findByStatusAndStartDate(LeaveStatus.APPROVED, today)
                 .forEach(lr -> {
                     lr.getEmployee().setStatus(EmployeeStatus.ON_LEAVE);
                     employeeRepository.save(lr.getEmployee());
                 });
 
-        // End yesterday's leaves
         leaveRequestRepository.findByStatusAndEndDate(LeaveStatus.APPROVED, today.minusDays(1))
                 .forEach(lr -> {
                     if (lr.getEmployee().getStatus() == EmployeeStatus.ON_LEAVE) {

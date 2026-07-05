@@ -53,7 +53,6 @@ public class NotificationService {
 
         Notification savedNotification = notificationRepository.save(notification);
 
-        // Send to WebSocket
         try {
             messagingTemplate.convertAndSendToUser(
                     recipientId.toString(),
@@ -63,7 +62,6 @@ public class NotificationService {
             System.err.println("WebSocket dispatch failed: " + e.getMessage());
         }
 
-        // Send simulated Email / SMS alerts
         try {
             User recipient = userRepository.findById(recipientId).orElse(null);
             if (recipient != null) {

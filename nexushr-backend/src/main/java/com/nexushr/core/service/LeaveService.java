@@ -106,10 +106,8 @@ public class LeaveService {
             request.setStatus(LeaveStatus.PENDING_HR_APPROVAL);
         } else if (approverRole == Role.HR && currentStatus == LeaveStatus.PENDING_HR_APPROVAL) {
             request.setStatus(LeaveStatus.APPROVED);
-        } else if (approverRole == Role.ADMIN && currentStatus == LeaveStatus.PENDING_ADMIN_APPROVAL) {
-            request.setStatus(LeaveStatus.APPROVED);
-        } else if (approverRole == Role.ADMIN) {
-            // Admin override
+        } else if (approverRole == Role.ADMIN || approverRole == Role.HR) {
+            // Admin or HR override
             request.setStatus(LeaveStatus.APPROVED);
         } else {
             throw new IllegalArgumentException("You do not have permission to approve this leave at its current stage");
@@ -166,7 +164,7 @@ public class LeaveService {
                 && request.getEmployee().getManager() != null
                 && request.getEmployee().getManager().getId().equals(approver.getId()))
                 || (approverRole == Role.HR && currentStatus == LeaveStatus.PENDING_HR_APPROVAL)
-                || (approverRole == Role.ADMIN); // admin override allowed at any pending stage
+                || (approverRole == Role.ADMIN || approverRole == Role.HR); // admin or HR override allowed at any pending stage
 
         if (!canReject) {
             throw new IllegalArgumentException("You do not have permission to reject this leave at its current stage");

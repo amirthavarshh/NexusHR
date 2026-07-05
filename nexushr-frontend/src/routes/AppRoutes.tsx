@@ -127,7 +127,7 @@ export const AppRoutes: React.FC = () => {
         <Route path="payroll/me" element={<PayrollPage roleView="employee" />} />
 
         {/* Management Gated */}
-        <Route path="team" element={<ProtectedRoute allowedRoles={['MANAGER', 'ADMIN', 'HR']}><TeamDirectoryPage /></ProtectedRoute>} />
+        <Route path="team" element={<TeamDirectoryPage />} />
         <Route path="reports" element={<ProtectedRoute allowedRoles={['MANAGER', 'ADMIN', 'HR']}><ReportsPage /></ProtectedRoute>} />
         <Route path="payroll/admin" element={<ProtectedRoute allowedRoles={['MANAGER', 'ADMIN', 'HR']}><PayrollPage roleView="manager" /></ProtectedRoute>} />
       </Route>

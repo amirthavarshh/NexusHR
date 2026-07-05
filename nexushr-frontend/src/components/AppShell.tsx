@@ -17,7 +17,7 @@ export const AppShell: React.FC = () => {
       { path: '/dashboard', label: 'Overview', icon: LayoutDashboard },
       { path: '/attendance', label: 'Attendance', icon: Clock },
       { path: '/leaves', label: 'Time Off', icon: Calendar },
-      { path: '/payroll', label: 'Payroll', icon: DollarSign },
+      { path: '/payroll/me', label: 'Payroll', icon: DollarSign },
       { path: '/goals', label: 'Goals', icon: Target },
       { path: '/team', label: 'Directory', icon: Users },
     ];

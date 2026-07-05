@@ -41,7 +41,7 @@ public class DataInitializer implements CommandLineRunner {
 
         @Override
         public void run(String... args) throws Exception {
-                // 1. Create Users
+
                 if (!userRepository.existsByUsername("admin")) {
                         User adminUser = User.builder()
                                         .username("admin")
@@ -104,7 +104,6 @@ public class DataInitializer implements CommandLineRunner {
                         hrUser = userRepository.findByUsername("hr").orElse(null);
                 }
 
-                // 2. Create Employees
                 Employee managerEmp = employeeRepository.findByEmail("sarah.connor@nexushr.com").orElse(null);
                 if (managerEmp == null && managerUser != null) {
                         managerEmp = Employee.builder()
@@ -177,12 +176,10 @@ public class DataInitializer implements CommandLineRunner {
                         hrEmp = employeeRepository.save(hrEmp);
                 }
 
-                // 3. Create Attendance Logs
                 if (attendanceRepository.count() == 0) {
                         LocalDate yesterday = LocalDate.now().minusDays(1);
                         LocalDate twoDaysAgo = LocalDate.now().minusDays(2);
 
-                        // Alice logs (Ideal employee: Present on-time)
                         attendanceRepository.save(Attendance.builder()
                                         .employee(aliceEmp)
                                         .date(twoDaysAgo)
@@ -198,24 +195,22 @@ public class DataInitializer implements CommandLineRunner {
                                         .status(AttendanceStatus.PRESENT)
                                         .build());
 
-                        // Bob logs (Flight risk: Late arrivals and absences)
                         attendanceRepository.save(Attendance.builder()
                                         .employee(bobEmp)
                                         .date(twoDaysAgo)
-                                        .clockIn(LocalTime.of(9, 45)) // LATE (shift starts 9am, threshold 9:15)
+                                        .clockIn(LocalTime.of(9, 45))
                                         .clockOut(LocalTime.of(17, 10))
                                         .status(AttendanceStatus.LATE)
                                         .build());
                         attendanceRepository.save(Attendance.builder()
                                         .employee(bobEmp)
                                         .date(yesterday)
-                                        .clockIn(LocalTime.of(10, 05)) // LATE
+                                        .clockIn(LocalTime.of(10, 05))
                                         .clockOut(LocalTime.of(16, 45))
                                         .status(AttendanceStatus.LATE)
                                         .build());
                 }
 
-                // 4. Create Leaves
                 if (leaveRequestRepository.count() == 0) {
                         leaveRequestRepository.save(LeaveRequest.builder()
                                         .employee(aliceEmp)
@@ -236,7 +231,6 @@ public class DataInitializer implements CommandLineRunner {
                                         .status(LeaveStatus.PENDING_MANAGER_APPROVAL)
                                         .build());
 
-                        // Bob has unpaid leave which will trigger payroll deduction
                         leaveRequestRepository.save(LeaveRequest.builder()
                                         .employee(bobEmp)
                                         .startDate(LocalDate.now().minusWeeks(2))
@@ -248,7 +242,6 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // 5. Create Performance Reviews
                 if (performanceReviewRepository.count() == 0) {
                         performanceReviewRepository.save(PerformanceReview.builder()
                                         .employee(aliceEmp)
@@ -269,7 +262,6 @@ public class DataInitializer implements CommandLineRunner {
                                         .build());
                 }
 
-                // 6. Create Payroll History
                 if (payrollRepository.count() == 0) {
                         payrollRepository.save(Payroll.builder()
                                         .employee(aliceEmp)
@@ -283,21 +275,19 @@ public class DataInitializer implements CommandLineRunner {
                                         .processedAt(LocalDateTime.now().minusWeeks(2))
                                         .build());
 
-                        // Bob has unpaid leaves, so his pay period deductions will be calculated
                         payrollRepository.save(Payroll.builder()
                                         .employee(bobEmp)
                                         .payPeriodStart(LocalDate.now().minusMonths(1).withDayOfMonth(1))
                                         .payPeriodEnd(LocalDate.now().minusMonths(1).withDayOfMonth(28))
                                         .basicSalary(3800.0)
                                         .allowances(380.0)
-                                        .deductions(518.18) // Deductions for 3 unpaid leave days
+                                        .deductions(518.18)
                                         .netSalary(3661.82)
                                         .status(PayrollStatus.PAID)
                                         .processedAt(LocalDateTime.now().minusWeeks(2))
                                         .build());
                 }
 
-                // 7. Create Goals
                 if (goalRepository.count() == 0) {
                         goalRepository.save(Goal.builder()
                                         .employee(aliceEmp)

@@ -1,8 +1,8 @@
 import React from 'react';
-import { 
-  Card, CardContent, CardDescription, CardHeader, CardTitle 
+import {
+  Card, CardContent, CardDescription, CardHeader, CardTitle
 } from '../../components/ui';
-import { 
+import {
   ResponsiveContainer, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   BarChart, Bar, Legend, LineChart, Line
 } from 'recharts';
@@ -42,7 +42,7 @@ export const Analytics: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      
+
       {/* Title */}
       <div>
         <h2 className="text-2xl font-extrabold font-display text-foreground leading-tight">Advanced Workforce Analytics</h2>
@@ -51,7 +51,7 @@ export const Analytics: React.FC = () => {
 
       {/* Grid containing core Analytics charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        
+
         {/* Employee growth area */}
         <Card className="border-t-4 border-t-emerald-500 shadow-sm">
           <CardHeader>
@@ -63,12 +63,12 @@ export const Analytics: React.FC = () => {
               <AreaChart data={growthData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorTotal" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#B8860B" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#B8860B" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#B8860B" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#B8860B" stopOpacity={0} />
                   </linearGradient>
                   <linearGradient id="colorActive" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.2}/>
-                    <stop offset="95%" stopColor="#10B981" stopOpacity={0}/>
+                    <stop offset="5%" stopColor="#10B981" stopOpacity={0.2} />
+                    <stop offset="95%" stopColor="#10B981" stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <CartesianGrid strokeDasharray="3 3" stroke="rgba(0,0,0,0.03)" />

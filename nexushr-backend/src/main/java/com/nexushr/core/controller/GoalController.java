@@ -78,8 +78,7 @@ public class GoalController {
 
     @GetMapping("/employee/{employeeId}")
     public ResponseEntity<List<Goal>> getEmployeeGoals(@PathVariable Long employeeId, Authentication authentication) {
-        // Verification: Employees can only view their own goals. Managers/HR/Admin can
-        // view any.
+
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 
@@ -115,8 +114,7 @@ public class GoalController {
         Goal goal = goalRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Goal not found"));
 
-        // Verification: Employees can only update their own goals. Managers/HR/Admin
-        // can update any.
+
         User user = userRepository.findByUsername(authentication.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found"));
 

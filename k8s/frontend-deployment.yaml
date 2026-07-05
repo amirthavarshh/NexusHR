@@ -17,7 +17,7 @@ spec:
       containers:
         - name: frontend
           image: nexushr-frontend:latest
-          imagePullPolicy: Never # Force local Minikube/Docker engine image reuse
+          imagePullPolicy: Never 
           ports:
             - containerPort: 80
           livenessProbe:
