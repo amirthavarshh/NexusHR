@@ -12,6 +12,7 @@ spring:
     hibernate:
       ddl-auto: update
     show-sql: true
+    open-in-view: false
     properties:
       hibernate:
         format_sql: true
@@ -20,26 +21,25 @@ spring:
   data:
     redis:
       host: ${REDIS_HOST:localhost}
-      port: 6379
+      port: ${REDIS_PORT:6379}
 
 server:
-  port: 8080
+  port: ${PORT:8080}
   servlet:
     context-path: /
 
 # Custom security / jwt keys
 security:
   jwt:
-    # Base64-encoded secret key (at least 256 bits). Here is a pre-generated valid secret for development:
+    # Base64-encoded secret key (at least 256 bits)
     secret-key: ${JWT_SECRET_KEY:ZGVmYXVsdC1uZXh1cy1oci1zdXBlci1zZWNyZXQtand0LWtleS0yNTYtYml0}
     expiration-time: 86400000 # 24 hours in milliseconds
 
 app:
   notification:
     email:
-      enabled: ${APP_NOTIFICATION_EMAIL_ENABLED:true}
+      enabled: ${APP_NOTIFICATION_EMAIL_ENABLED:false}
       provider: ${APP_NOTIFICATION_EMAIL_PROVIDER:AWS_SES}
     sms:
-      enabled: ${APP_NOTIFICATION_SMS_ENABLED:true}
+      enabled: ${APP_NOTIFICATION_SMS_ENABLED:false}
       provider: ${APP_NOTIFICATION_SMS_PROVIDER:Twilio}
-

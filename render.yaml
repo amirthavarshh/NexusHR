@@ -1,0 +1,82 @@
+databases:
+  - name: nexushr-db
+    databaseName: nexushr
+    user: nexushr_user
+    plan: free
+    region: oregon
+
+services:
+  # ─── Spring Boot Backend ───────────────────────────────────────────────────
+  - type: web
+    name: nexushr-backend
+    region: oregon
+    plan: free
+    runtime: docker
+    dockerContext: ./nexushr-backend
+    dockerfilePath: ./nexushr-backend/Dockerfile
+    healthCheckPath: /api/health
+    envVars:
+      - key: DB_HOST
+        fromDatabase:
+          name: nexushr-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: nexushr-db
+          property: port
+      - key: DB_NAME
+        fromDatabase:
+          name: nexushr-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: nexushr-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: nexushr-db
+          property: password
+      - key: REDIS_HOST
+        fromService:
+          name: nexushr-redis
+          type: redis
+          property: host
+      - key: REDIS_PORT
+        fromService:
+          name: nexushr-redis
+          type: redis
+          property: port
+      - key: JWT_SECRET_KEY
+        generateValue: true
+      - key: APP_NOTIFICATION_EMAIL_ENABLED
+        value: "false"
+      - key: APP_NOTIFICATION_SMS_ENABLED
+        value: "false"
+
+  # ─── React Frontend (Static Site) ─────────────────────────────────────────
+  - type: web
+    name: nexushr-frontend
+    region: oregon
+    plan: free
+    runtime: static
+    buildCommand: npm ci && npm run build
+    staticPublishPath: dist
+    rootDir: nexushr-frontend
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    envVars:
+      - key: VITE_API_BASE_URL
+        value: https://nexushr-backend.onrender.com/api
+
+  # ─── Redis ─────────────────────────────────────────────────────────────────
+  - type: redis
+    name: nexushr-redis
+    region: oregon
+    plan: free
+    ipAllowList: []
