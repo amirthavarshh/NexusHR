@@ -56,7 +56,6 @@ services:
   # ─── React Frontend (Static Site) ─────────────────────────────────────────
   - type: web
     name: nexushr-frontend
-    plan: free
     runtime: static
     buildCommand: npm ci && npm run build
     staticPublishPath: dist
