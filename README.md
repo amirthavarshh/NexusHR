@@ -125,8 +125,8 @@ docker compose up --build -d
 |---|---|
 | Frontend | http://localhost:5173 |
 | Backend API | http://localhost:8080/api |
-| PostgreSQL | localhost:5432 |
-| Redis | localhost:6379 |
+| PostgreSQL | http://localhost:5432 |
+| Redis | http://localhost:6379 |
 
 Docker Compose spins up all four services with health checks and persistent volumes automatically.
 
