@@ -1,97 +1,189 @@
-# NexusHR – AI-Enabled Enterprise HR & Workforce Intelligence Platform
+# NexusHR — AI-Enabled HR & Workforce Intelligence Platform
 
-> **Production-Grade Java Full-Stack System**  
-> **Author:** Zidio Development  
-> **Prepared for:** Zidio Development – Java Full-Stack Domain (March 2026)  
-> **Version:** 2.0 – Industry Edition  
+> A production-grade, full-stack Human Resource Management System built with **Spring Boot 3**, **React 18 + TypeScript**, **PostgreSQL 17**, **Redis**, **Docker**, and **Kubernetes**.
 
-![NexusHR Cover](https://via.placeholder.com/1200x400/1e2035/6366f1?text=NexusHR+-+AI-Enabled+HR+Platform)
-
-*“HR teams spend too much time on manual processes and lack real-time workforce insights. NexusHR streamlines employee lifecycle, attendance, payroll, performance tracking, and delivers AI-powered insights — reducing administrative workload by 40-60% and improving decision-making.”*
+🔗 **Live Demo:** [https://nexushr-frontend-0fht.onrender.com](https://nexushr-frontend-0fht.onrender.com)
+> ⚠️ First load may take 30–50 seconds — Render free tier spins down when idle.
 
 ---
 
-## 🎯 1. Business Case & Production Objectives
+## What is NexusHR?
 
-### Mission
-Build a production-grade Java full-stack HR management platform that covers the complete employee lifecycle — from onboarding to offboarding — with real-time attendance, automated payroll, performance reviews, and AI-driven workforce intelligence. Designed for mid-to-large enterprises to reduce HR operational costs and improve employee experience.
-
-### Quantified Business Impact Targets
-- Reduce HR administrative workload by 40–60% through automation.
-- Improve employee retention by 15–25% via better performance insights and engagement tracking.
-- Support 5,000–50,000 employees per deployment.
-- Achieve 99.95% uptime SLA.
-- Zero-downtime deployments for new features.
-
-### Non-Functional Requirements
-- **Latency:** < 300 ms for core API calls, < 2 s for dashboard loads
-- **Throughput:** Handle 10k+ concurrent HR users during payroll cycles
-- **Availability:** 99.95%
-- **Security:** OWASP Top 10 mitigation, role-based access, data encryption at rest
-- **Scalability:** Horizontal auto-scaling with Kubernetes
-- **Observability:** Full logging, metrics, and audit trails
+HR teams spend too much time on manual processes and lack real-time workforce insight. NexusHR streamlines the complete employee lifecycle — attendance, leave, payroll, goals, and performance reviews — while delivering AI-powered attrition prediction and skill gap analysis, all behind a role-based access control system.
 
 ---
 
-## ⚙️ 2. Production Technology Stack (2026 Edition)
+## Tech Stack
 
-| Layer | Primary Technology | Rationale / Alternatives |
+| Layer | Technology |
+|---|---|
+| Backend | Java 21 · Spring Boot 3 |
+| Auth | Spring Security 6 · JWT (HS256) · BCryptPasswordEncoder |
+| Database | PostgreSQL 17 · Spring Data JPA · Hibernate |
+| Cache | Redis 7 |
+| Frontend | React 18 · TypeScript · Vite |
+| State Management | TanStack Query (React Query) |
+| Styling | Tailwind CSS |
+| AI Engine | Rule-based scoring + OpenAI GPT-4o-mini (optional) |
+| Containerisation | Docker · Docker Compose |
+| Orchestration | Kubernetes (5 manifests) |
+| CI/CD | GitHub Actions |
+
+---
+
+## Features
+
+### 4 Role-Based Portals
+
+| Role | Portal | Capabilities |
 |---|---|---|
-| **Backend** | Java 21 + Spring Boot 3.3 | Enterprise standard, virtual threads, excellent ecosystem |
-| **Frontend** | React 19 + TypeScript + Vite | Fast development, modern UI |
-| **UI Components** | shadcn/ui + Tailwind CSS v4 | Consistent, accessible premium glassmorphism design |
-| **Database** | PostgreSQL 17 | ACID compliance, JSONB for flexible data |
-| **Cache** | Redis 7+ | Session management, real-time data |
-| **Authentication** | Spring Security 6 + JWT | Secure, role-based access control (RBAC) |
-| **AI Integration** | Spring AI + OpenAI / Hugging Face | Intelligent insights and recommendations |
-| **Containerization** | Docker multi-stage | Consistent, lightweight images |
+| Employee | `/dashboard` | Clock in/out, apply leave, view payslips, track goals, view performance reviews, skill gap insight |
+| Manager | `/manager` | Team attendance, approve/reject leaves, assign goals, submit performance reviews |
+| HR | `/hr` | All employee data, payroll runs, leave centre, AI attrition & skill gap insights |
+| Admin | `/admin` | Full system access — departments, HR/manager accounts, payroll, analytics |
+
+### Core Modules
+
+**Attendance Management**
+- Clock-in / clock-out with timestamp recording
+- Status tracking: PRESENT / LATE / ABSENT
+- Personal history and org-wide attendance view for HR/Admin
+
+**Leave Management**
+- Apply for ANNUAL, SICK, or UNPAID leave
+- Approval workflow: PENDING → APPROVED / REJECTED
+- Approved unpaid leave days automatically feed into payroll deductions
+
+**Payroll Engine**
+- Automated payroll run for any date range
+- Formula: `Basic Salary + 10% Allowance − (Daily Rate × Unpaid Leave Days)`
+- Daily rate = salary / 22 working days
+- Status lifecycle: DRAFT → PAID
+- Employees view their own payslips
+
+**Goals & Performance**
+- Manager/HR assign goals with target dates
+- Employee updates status: PENDING → IN_PROGRESS → COMPLETED
+- Manager submits performance reviews with ratings and comments
+
+**AI Workforce Insights**
+
+*Attrition Risk Prediction* — weighted scoring model using real DB data:
+- Base risk: 15%
+- Late / absent attendance: +7.5% per occurrence (max +30%)
+- Performance rating < 3.0: +15% per point below threshold
+- Performance rating > 4.0: −10% (top performer discount)
+- Unpaid leave usage: +5% per request (max +15%)
+- Salary below department average: up to +15%
+- Output: LOW / MEDIUM / HIGH + contextual explanation
+
+*Skill Gap Analysis* — position-aware competency matrix with current vs target ratings and a training recommendation plan.
+
+> If `OPENAI_API_KEY` is set at runtime, explanations are generated by GPT-4o-mini. Otherwise, the fully deterministic rule-based engine runs — no API key required.
 
 ---
 
-## 🚀 3. Core Functional Requirements
+## API Overview
 
-| ID | Capability | Detailed Description & Business Value | Key Acceptance Criteria & Production Metrics |
-|---|---|---|---|
-| **F01** | Employee Lifecycle | Onboarding, profile management, role assignment, offboarding. | Complete workflow with approval steps, document upload. |
-| **F02** | Attendance & Leave | Biometric simulation, leave requests, approval workflow. | Real-time attendance dashboard, accurate leave balance calculation. |
-| **F03** | Payroll Processing | Automated salary calculation, tax deduction, payslip generation. | Accurate payroll runs, exportable payslips. |
-| **F04** | Performance Mgmt | Goal setting, reviews, 360-degree feedback, rating system. | Performance scorecards, trend analysis. |
-| **F05** | AI Workforce Insights | Predictive attrition, skill gap analysis, engagement scoring. | AI recommendations with >80% accuracy on sample data. |
-| **F06** | Dashboards | Role-based views (Admin, Manager, HR, Employee) with analytics. | Real-time metrics, export options (PDF/Excel). |
+22 REST endpoints across 8 controllers, all under `/api`:
 
----
+| Controller | Endpoints |
+|---|---|
+| Auth | `POST /auth/register` · `POST /auth/login` |
+| Employee | `POST /employees` · `GET /employees` · `GET /employees/{id}` · `GET /employees/me` · `PUT /employees/{id}` · `GET /employees/metrics` |
+| Attendance | `POST /attendance/clock-in` · `POST /attendance/clock-out` · `GET /attendance/today` · `GET /attendance/my-history` · `GET /attendance` |
+| Leave | `POST /leaves` · `POST /leaves/{id}/approve` · `POST /leaves/{id}/reject` · `GET /leaves/my-requests` · `GET /leaves` |
+| Payroll | `POST /payroll/run` · `POST /payroll/{id}/pay` · `GET /payroll/my-slips` · `GET /payroll` |
+| Goals | `POST /goals` · `GET /goals/employee/{id}` · `PUT /goals/{id}/status` |
+| Performance Reviews | `POST /reviews` · `GET /reviews/employee/{id}` |
+| AI Insights | `GET /ai/attrition/{id}` · `GET /ai/skillgap/{id}` |
 
-## 🏗️ 4. Local Development Setup
-
-To run NexusHR locally, you only need **Docker** installed.
-
-1. Clone the repository:
-   ```bash
-   git clone https://github.com/amirthavarshh/NexusHR.git
-   cd NexusHR
-   ```
-
-2. Start all services using Docker Compose:
-   ```bash
-   docker compose up --build -d
-   ```
-
-3. Access the application:
-   - **Frontend:** http://localhost:5173
-   - **Backend API:** http://localhost:8080/api
-
-*The application will automatically spin up PostgreSQL, Redis, the Spring Boot Backend, and the React Frontend in isolated containers.*
+All endpoints except `/auth/**` require a valid JWT `Authorization: Bearer <token>` header.
 
 ---
 
-## 🔒 5. Security & Privacy Highlights
-- **Stateless Authentication:** JWT with secure Argon2 password encoding.
-- **OWASP Top 10 Mitigation:** Input sanitization, CORS wildcard domains correctly managed.
-- **RBAC:** Strict Role-Based Access Control (`EMPLOYEE`, `MANAGER`, `HR`, `ADMIN`).
-- **Global Exception Handling:** Custom API error mapping prevents server trace leaks.
+## Security
+
+- **Stateless JWT auth** — HS256 signed, 24-hour expiry, validated on every request
+- **BCrypt password hashing** — plain-text passwords never stored
+- **Method-level RBAC** — `@EnableMethodSecurity` + `@PreAuthorize` per endpoint
+- **Stateless sessions** — `SessionCreationPolicy.STATELESS`, no server-side session state
+- **Global exception handling** — `@RestControllerAdvice` prevents stack trace leaks
+- **CORS** — configured for Docker and public deployment environments
 
 ---
 
-<div align="center">
-  <i>Crafted with precision and modern engineering principles • Zidio Development • March 2026</i>
-</div>
+## Local Setup (Docker — no JDK or Node required)
+
+```bash
+git clone https://github.com/amirthavarshh/NexusHR.git
+cd NexusHR
+docker compose up --build -d
+```
+
+| Service | URL |
+|---|---|
+| Frontend | http://localhost:5173 |
+| Backend API | http://localhost:8080/api |
+| PostgreSQL | localhost:5432 |
+| Redis | localhost:6379 |
+
+Docker Compose spins up all four services with health checks and persistent volumes automatically.
+
+**Optional — enable AI explanations:**
+```bash
+OPENAI_API_KEY=sk-... docker compose up --build -d
+```
+
+---
+
+## Kubernetes Deployment
+
+Five manifests are included in `/k8s`:
+
+```
+k8s/
+├── configmap.yaml
+├── postgres-deployment.yaml
+├── redis-deployment.yaml
+├── backend-deployment.yaml
+└── frontend-deployment.yaml
+```
+
+Apply with:
+```bash
+kubectl apply -f k8s/
+```
+
+---
+
+## Project Structure
+
+```
+NexusHR/
+├── nexushr-backend/
+│   ├── src/main/java/com/nexushr/core/
+│   │   ├── controller/     # 8 REST controllers
+│   │   ├── service/        # 7 service classes
+│   │   ├── repository/     # 6 JPA repositories
+│   │   ├── model/          # 11 JPA entities + enums
+│   │   ├── security/       # JWT filter, SecurityConfig, UserDetailsService
+│   │   ├── dto/            # Request/response DTOs
+│   │   └── exception/      # Global exception handler
+│   └── Dockerfile
+├── nexushr-frontend/
+│   ├── src/
+│   │   ├── features/       # attendance, dashboard, goals, leaves, payroll, reports, team
+│   │   ├── routes/         # AppRoutes with role-based redirect
+│   │   ├── context/        # AuthContext
+│   │   └── api.ts          # Typed wrappers for all 22 endpoints
+│   └── Dockerfile
+├── k8s/                    # Kubernetes manifests
+└── docker-compose.yml
+```
+
+---
+
+## Built for
+
+Zidio Development — Java Full-Stack Internship Program (2026)
