@@ -5,6 +5,7 @@ import { ProtectedRoute } from '../components/ProtectedRoute';
 import { AppShell } from '../components/AppShell';
 import { LoginPage } from '../features/auth/LoginPage';
 import { RegisterPage } from '../features/auth/RegisterPage';
+import LandingPage from '../features/landing/LandingPage';
 import { ProfileSetupGate } from '../features/auth/ProfileSetupGate';
 import { DashboardPage } from '../features/dashboard/DashboardPage';
 import { AttendancePage } from '../features/attendance/AttendancePage';
@@ -68,6 +69,7 @@ export const AppRoutes: React.FC = () => {
   return (
     <Routes>
       {/* Public Routes */}
+      <Route path="/" element={<LandingPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       
@@ -115,10 +117,8 @@ export const AppRoutes: React.FC = () => {
         <Route path="ai-insights" element={<HrAIInsights />} />
       </Route>
       
-      {/* Protected Layout Routes */}
-      <Route path="/" element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
-        <Route index element={<Navigate to="/dashboard" replace />} />
-        
+      {/* Protected Layout Routes — pathless layout route wraps AppShell without claiming a URL */}
+      <Route element={<ProtectedRoute><AppShell /></ProtectedRoute>}>
         {/* Core Hub */}
         <Route path="dashboard" element={<DashboardLanding />} />
         <Route path="attendance" element={<AttendancePage />} />
@@ -133,7 +133,7 @@ export const AppRoutes: React.FC = () => {
       </Route>
 
       {/* Fallback redirect */}
-      <Route path="*" element={<Navigate to="/dashboard" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };
