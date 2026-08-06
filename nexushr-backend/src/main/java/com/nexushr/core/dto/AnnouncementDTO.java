@@ -6,13 +6,25 @@ import java.time.LocalDateTime;
 
 public class AnnouncementDTO {
     private Long id;
+    @jakarta.validation.constraints.NotBlank(message = "Title is required")
+    @jakarta.validation.constraints.Size(min = 3, max = 100, message = "Title must be between 3 and 100 characters")
     private String title;
+
+    @jakarta.validation.constraints.NotBlank(message = "Description is required")
     private String description;
+
+    @jakarta.validation.constraints.NotNull(message = "Target audience is required")
     private AudienceType targetAudience;
+
+    @jakarta.validation.constraints.NotNull(message = "Priority is required")
     private Priority priority;
+    
     private Long createdBy;
     private LocalDateTime createdAt;
+
+    @jakarta.validation.constraints.Future(message = "Expiry date must be in the future")
     private LocalDateTime expiryDate;
+    
     private boolean isActive;
 
     public Long getId() { return id; }
