@@ -1,14 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useAllEmployees, useAttritionPrediction, useSkillGapAnalysis } from '../hooks/useHrQuery';
 import type { Employee } from '../types';
 import {
   Card, Badge
 } from '../../components/ui';
-import { BrainCircuit, AlertTriangle, TrendingDown, ShieldCheck, BarChart3, ChevronDown, ChevronUp } from 'lucide-react';
+import { BrainCircuit, AlertTriangle, TrendingDown, ShieldCheck, BarChart3, ChevronDown, ChevronUp, MessageCircle, Send, Loader2, RefreshCw } from 'lucide-react';
 import {
   ResponsiveContainer,
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip
 } from 'recharts';
+import { api } from '../../api';
 
 // ── Attrition Risk Gauge ──────────────────────────────────────────────────────
 const RiskGauge: React.FC<{ score: number; category: string }> = ({ score, category }) => {
@@ -154,14 +155,138 @@ const SkillGapCard: React.FC<{ emp: Employee }> = ({ emp }) => {
   );
 };
 
+// ── Embedded HR Chat Panel ────────────────────────────────────────────────────
+type HrChatMsg = { id: string; role: 'user' | 'bot'; text: string; sources?: string[]; error?: boolean };
+const uid = () => Math.random().toString(36).slice(2, 9);
+
+const HrChatPanel: React.FC = () => {
+  const [messages, setMessages] = useState<HrChatMsg[]>([{
+    id: 'welcome', role: 'bot',
+    text: "Hi! I'm NexusHR Assistant.\n\nAsk me about any HR policies, or ask for workforce insights. I'll answer based on verified policy documents.\n\nExample: \"Who has high attrition risk?\", \"What is the leave approval workflow?\"",
+  }]);
+  const [input, setInput] = useState('');
+  const [loading, setLoading] = useState(false);
+  const endRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => { endRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
+
+  const send = useCallback(async (text: string) => {
+    const t = text.trim();
+    if (!t || loading) return;
+    setInput('');
+    setMessages(p => [...p, { id: uid(), role: 'user', text: t }]);
+    setLoading(true);
+    try {
+      const res = await api.chat(t);
+      setMessages(p => [...p, { id: uid(), role: 'bot', text: res.answer, sources: res.sources }]);
+    } catch {
+      setMessages(p => [...p, { id: uid(), role: 'bot', text: 'Unable to reach the AI service. Please try again.', error: true }]);
+    } finally {
+      setLoading(false);
+    }
+  }, [loading]);
+
+  const QUICK = ['Leave approval workflow', 'Payroll calculation formula', 'Attendance clock-in rules', 'Performance review cycle'];
+
+  return (
+    <Card className="flex flex-col border border-slate-100 dark:border-slate-800 overflow-hidden" style={{ height: 520 }}>
+      {/* Header */}
+      <div className="flex items-center gap-3 px-4 py-3 bg-gradient-to-r from-slate-900 to-slate-800 shrink-0">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+          <BrainCircuit size={15} className="text-white" />
+        </div>
+        <div className="flex-1">
+          <p className="text-xs font-bold text-white">NexusHR HR Assistant</p>
+          <p className="text-[10px] text-slate-400">Policy FAQ · Workforce Q&amp;A</p>
+        </div>
+        <button onClick={() => setMessages([{ id: uid(), role: 'bot', text: 'Chat cleared.' }])}
+          className="p-1.5 text-slate-400 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer">
+          <RefreshCw size={13} />
+        </button>
+      </div>
+
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-slate-50 dark:bg-slate-900">
+        {messages.map(msg => (
+          <div key={msg.id} className={`flex items-end gap-2 animate-fadeIn ${msg.role === 'user' ? 'flex-row-reverse' : ''}`}>
+            {msg.role === 'bot' && (
+              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shrink-0">
+                <BrainCircuit size={11} className="text-white" />
+              </div>
+            )}
+            <div className={`max-w-[80%] px-3 py-2 rounded-2xl text-xs leading-relaxed whitespace-pre-wrap shadow-sm ${
+              msg.role === 'user'
+                ? 'bg-gradient-to-br from-amber-500 to-amber-600 text-white rounded-br-sm'
+                : msg.error
+                ? 'bg-rose-50 dark:bg-rose-950/30 text-rose-600 border border-rose-200 dark:border-rose-800 rounded-bl-sm'
+                : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-100 dark:border-slate-700 rounded-bl-sm'
+            }`}>
+              {msg.text}
+              {msg.sources && msg.sources.length > 0 && (
+                <div className="flex flex-wrap gap-1 mt-2">
+                  {msg.sources.map(s => (
+                    <span key={s} className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400">
+                      📎 {s}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+        {loading && (
+          <div className="flex items-center gap-2">
+            <div className="w-6 h-6 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center">
+              <BrainCircuit size={11} className="text-white" />
+            </div>
+            <div className="flex items-center gap-1 px-3 py-2.5 bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-2xl rounded-bl-sm shadow-sm">
+              {[0,150,300].map(d => <span key={d} className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: `${d}ms` }} />)}
+            </div>
+          </div>
+        )}
+        <div ref={endRef} />
+      </div>
+
+      {/* Quick prompts */}
+      {messages.length === 1 && !loading && (
+        <div className="flex flex-wrap gap-1.5 px-4 pb-2 bg-slate-50 dark:bg-slate-900 shrink-0">
+          {QUICK.map(q => (
+            <button key={q} onClick={() => send(q)}
+              className="text-[10px] font-semibold px-2 py-1 rounded-full bg-white dark:bg-slate-800 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-400 hover:bg-amber-50 dark:hover:bg-amber-950/30 transition-colors cursor-pointer">
+              {q}
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Input */}
+      <div className="flex items-center gap-2 p-3 border-t border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shrink-0">
+        <input
+          type="text" value={input} onChange={e => setInput(e.target.value.slice(0, 500))}
+          onKeyDown={e => { if (e.key === 'Enter') { e.preventDefault(); send(input); } }}
+          placeholder="Ask anything about HR policies or workforce data…"
+          disabled={loading}
+          className="flex-1 text-xs bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 py-2 text-slate-700 dark:text-slate-300 placeholder-slate-400 outline-none focus:border-amber-400 dark:focus:border-amber-500 transition-colors disabled:opacity-50"
+        />
+        <button onClick={() => send(input)} disabled={loading || !input.trim()}
+          className="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 hover:from-amber-500 hover:to-amber-700 flex items-center justify-center text-white transition-all disabled:opacity-40 disabled:cursor-not-allowed cursor-pointer shadow-md">
+          {loading ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
+        </button>
+      </div>
+    </Card>
+  );
+};
+
+
 // ── Main AI Insights Page ─────────────────────────────────────────────────────
 export const AIInsights: React.FC = () => {
   const { data: employees = [], isLoading } = useAllEmployees();
-  const [activeView, setActiveView] = useState<'attrition' | 'skillgap'>('attrition');
+  const [activeView, setActiveView] = useState<'attrition' | 'skillgap' | 'assistant'>('attrition');
 
   const views = [
     { key: 'attrition' as const, label: 'Attrition Risk Board', icon: TrendingDown },
     { key: 'skillgap' as const, label: 'Skill Gap Analysis', icon: BarChart3 },
+    { key: 'assistant' as const, label: 'HR Assistant', icon: MessageCircle },
   ];
 
   return (
@@ -234,7 +359,9 @@ export const AIInsights: React.FC = () => {
       )}
 
       {/* Employee Cards */}
-      {isLoading ? (
+      {activeView === 'assistant' ? (
+        <HrChatPanel />
+      ) : isLoading ? (
         <div className="space-y-3">
           {[...Array(5)].map((_, i) => (
             <div key={i} className="h-16 rounded-xl bg-slate-100 dark:bg-slate-800 animate-pulse" />

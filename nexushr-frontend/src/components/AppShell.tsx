@@ -3,14 +3,26 @@ import { Outlet, Link, useLocation } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { 
   Users, Calendar, Clock, DollarSign, LayoutDashboard, 
-  Target, BarChart3, LogOut, Menu, X, Bell
+  Target, BarChart3, LogOut, Menu, X, Bell, Sun, Moon
 } from 'lucide-react';
 import { Button } from './ui';
+import { ChatWidget } from './ChatWidget';
 
 export const AppShell: React.FC = () => {
   const { session, logout, profile } = useAuth();
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [darkMode, setDarkMode] = useState(() => localStorage.getItem('darkMode') === 'true');
+
+  // Sync dark mode class
+  React.useEffect(() => {
+    if (darkMode) {
+      document.body.classList.add('dark');
+    } else {
+      document.body.classList.remove('dark');
+    }
+    localStorage.setItem('darkMode', darkMode.toString());
+  }, [darkMode]);
 
   const getNavItems = () => {
     const items = [
@@ -120,6 +132,13 @@ export const AppShell: React.FC = () => {
             </h1>
           </div>
           <div className="flex items-center gap-4">
+            {/* Dark mode toggle */}
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="text-foreground/50 hover:text-foreground cursor-pointer p-1.5 rounded-full hover:bg-surface-muted transition-all"
+            >
+              {darkMode ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
             <button className="relative p-2 text-foreground/50 hover:text-foreground transition-colors">
               <Bell size={18} />
               <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-destructive rounded-full"></span>
@@ -133,6 +152,9 @@ export const AppShell: React.FC = () => {
           </div>
         </main>
       </div>
+
+      {/* NexusHR AI Assistant — floats over the employee portal */}
+      <ChatWidget />
     </div>
   );
 };

@@ -1,0 +1,2 @@
+rootProject.name = 'Zidio'
+include 'nexushr-backend'

@@ -5,6 +5,12 @@ import type {
   WorkforceMetrics 
 } from '../types/domain';
 
+export interface ChatResponse {
+  answer: string;
+  sources: string[];
+  timestamp: string;
+}
+
 export const api = {
   // Auth API
   async login(payload: any): Promise<any> {
@@ -172,6 +178,14 @@ export const api = {
     return request<Goal>(`/goals/${goalId}/status`, {
       method: 'PUT',
       body: JSON.stringify({ status })
+    });
+  },
+
+  // ── AI Chat API ────────────────────────────────────────────────────────────
+  async chat(message: string): Promise<ChatResponse> {
+    return request<ChatResponse>('/ai/chat', {
+      method: 'POST',
+      body: JSON.stringify({ message })
     });
   }
 };

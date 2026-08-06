@@ -1,10 +1,13 @@
 package com.nexushr.core.controller;
 
+import com.nexushr.core.dto.ChatRequest;
 import com.nexushr.core.model.Employee;
 import com.nexushr.core.model.User;
 import com.nexushr.core.repository.EmployeeRepository;
 import com.nexushr.core.repository.UserRepository;
 import com.nexushr.core.service.AiService;
+import com.nexushr.core.service.ChatService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,6 +25,9 @@ public class AiController {
 
     @Autowired
     private AiService aiService;
+
+    @Autowired
+    private ChatService chatService;
 
     @Autowired
     private UserRepository userRepository;
@@ -60,5 +66,23 @@ public class AiController {
     public ResponseEntity<Map<String, Object>> analyzeSkillGap(@PathVariable Long employeeId, Authentication authentication) {
         verifyOwnership(employeeId, authentication);
         return ResponseEntity.ok(aiService.analyzeSkillGap(employeeId));
+    }
+
+    /**
+     * RAG-powered HR chatbot endpoint.
+     * Available to all authenticated roles.
+     * Returns {answer, sources[], timestamp}.
+     */
+    @PostMapping("/chat")
+    @PreAuthorize("hasAnyRole('EMPLOYEE', 'MANAGER', 'ADMIN', 'HR')")
+    public ResponseEntity<Map<String, Object>> chat(
+            @Valid @RequestBody ChatRequest body,
+            Authentication authentication) {
+        String username = authentication.getName();
+        String role = authentication.getAuthorities().stream()
+                .findFirst()
+                .map(a -> a.getAuthority().replace("ROLE_", ""))
+                .orElse("EMPLOYEE");
+        return ResponseEntity.ok(chatService.chat(body.getMessage(), username, role));
     }
 }

@@ -2,6 +2,7 @@ package com.nexushr.core.config;
 
 import com.nexushr.core.model.*;
 import com.nexushr.core.repository.*;
+import com.nexushr.core.service.KnowledgeIngestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -38,6 +39,9 @@ public class DataInitializer implements CommandLineRunner {
 
         @Autowired
         private PasswordEncoder passwordEncoder;
+
+        @Autowired
+        private KnowledgeIngestionService knowledgeIngestionService;
 
         @Override
         public void run(String... args) throws Exception {
@@ -307,5 +311,8 @@ public class DataInitializer implements CommandLineRunner {
                                         .createdAt(LocalDate.now())
                                         .build());
                 }
+
+                // Seed RAG knowledge base (idempotent — skips if already seeded)
+                knowledgeIngestionService.seedIfEmpty();
         }
 }

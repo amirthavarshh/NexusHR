@@ -3,6 +3,7 @@ import { Outlet, Navigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
+import { ChatWidget } from '../../components/ChatWidget';
 
 export const Layout: React.FC = () => {
   const { session } = useAuth();
@@ -51,6 +52,9 @@ export const Layout: React.FC = () => {
         </div>
 
       </div>
+
+      {/* NexusHR AI Assistant */}
+      <ChatWidget />
     </div>
   );
 };

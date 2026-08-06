@@ -4,6 +4,7 @@ import { useAuth } from '../../context/AuthContext';
 import { Sidebar } from './Sidebar';
 import { Navbar } from './Navbar';
 import { Toast } from '../../components/ui/Toast';
+import { ChatWidget } from '../../components/ChatWidget';
 
 export const Layout: React.FC = () => {
   const { session, toast } = useAuth();
@@ -34,6 +35,9 @@ export const Layout: React.FC = () => {
           </main>
         </div>
       </div>
+
+      {/* NexusHR AI Assistant */}
+      <ChatWidget />
     </div>
   );
 };
