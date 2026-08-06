@@ -19,7 +19,7 @@ public class EmployeeController {
     private EmployeeService employeeService;
 
     @PostMapping
-    public ResponseEntity<Employee> createEmployee(@RequestBody Employee employee,
+    public ResponseEntity<Employee> createEmployee(@jakarta.validation.Valid @RequestBody Employee employee,
             @RequestParam(required = false) String username,
             Authentication authentication) {
         String callerUsername = authentication.getName();
@@ -72,7 +72,7 @@ public class EmployeeController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @RequestBody Employee employee,
+    public ResponseEntity<Employee> updateEmployee(@PathVariable Long id, @jakarta.validation.Valid @RequestBody Employee employee,
             Authentication authentication) {
         boolean isAdminOrHr = authentication.getAuthorities().stream()
                 .anyMatch(a -> List.of("ROLE_ADMIN", "ROLE_HR").contains(a.getAuthority()));
