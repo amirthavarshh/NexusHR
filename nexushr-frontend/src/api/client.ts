@@ -18,7 +18,8 @@ export async function request<T>(path: string, options: FetchOptions = {}): Prom
 
   const fetchOptions: RequestInit = {
     ...options,
-    headers
+    headers,
+    credentials: 'include'
   };
 
   let url = `${BASE_URL}${path}`;

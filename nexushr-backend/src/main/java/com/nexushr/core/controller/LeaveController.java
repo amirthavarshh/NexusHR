@@ -14,7 +14,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/leaves")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class LeaveController {
 
     @Autowired

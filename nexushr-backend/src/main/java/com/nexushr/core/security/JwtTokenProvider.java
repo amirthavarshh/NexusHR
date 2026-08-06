@@ -23,6 +23,20 @@ public class JwtTokenProvider {
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
 
+    private SecretKey signInKey;
+
+    @jakarta.annotation.PostConstruct
+    protected void init() {
+        String defaultKey = "ZGVmYXVsdC1uZXh1cy1oci1zdXBlci1zZWNyZXQtand0LWtleS0yNTYtYml0";
+        if (secretKey == null || secretKey.isBlank() || secretKey.equals(defaultKey)) {
+            System.err.println("WARNING: JWT secret key is not set or using insecure default. Generating a secure random key for this session.");
+            this.signInKey = Jwts.SIG.HS256.key().build();
+        } else {
+            byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+            this.signInKey = Keys.hmacShaKeyFor(keyBytes);
+        }
+    }
+
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
     }
@@ -70,7 +84,6 @@ public class JwtTokenProvider {
     }
 
     private SecretKey getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-        return Keys.hmacShaKeyFor(keyBytes);
+        return this.signInKey;
     }
 }

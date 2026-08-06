@@ -57,14 +57,25 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
+    @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origins:*}")
+    private String allowedOrigins;
+
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.addAllowedOriginPattern("*"); // Allow all origins for Docker + public deployment
+        if (allowedOrigins == null || allowedOrigins.isBlank() || "*".equals(allowedOrigins.trim())) {
+            configuration.addAllowedOriginPattern("*");
+            configuration.setAllowCredentials(false);
+        } else {
+            java.util.List<String> origins = java.util.Arrays.stream(allowedOrigins.split(","))
+                                                         .map(String::trim)
+                                                         .collect(java.util.stream.Collectors.toList());
+            configuration.setAllowedOrigins(origins);
+            configuration.setAllowCredentials(true);
+        }
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
         configuration.setExposedHeaders(Arrays.asList("Authorization"));
-        configuration.setAllowCredentials(false); // Must be false when using wildcard origin
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

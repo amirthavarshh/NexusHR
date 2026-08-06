@@ -21,7 +21,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/goals")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class GoalController {
 
     @Autowired

@@ -56,8 +56,20 @@ public class PayrollService {
                 }
             }
 
-            // Deduct salary per day (assuming 22 working days per month average)
-            double dailyRate = basic / 22.0;
+            // Calculate actual working days (weekdays) in the pay period
+            long periodWorkingDays = 0;
+            LocalDate cur = start;
+            while (!cur.isAfter(end)) {
+                java.time.DayOfWeek day = cur.getDayOfWeek();
+                if (day != java.time.DayOfWeek.SATURDAY && day != java.time.DayOfWeek.SUNDAY) {
+                    periodWorkingDays++;
+                }
+                cur = cur.plusDays(1);
+            }
+            if (periodWorkingDays == 0) periodWorkingDays = 22; // secure fallback
+
+            // Deduct salary per day based on actual working days in the period
+            double dailyRate = basic / (double) periodWorkingDays;
             double deductions = Math.round(dailyRate * unpaidDays * 100.0) / 100.0;
             double net = basic + allowances - deductions;
 

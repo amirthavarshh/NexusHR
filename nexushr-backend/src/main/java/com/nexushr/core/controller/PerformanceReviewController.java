@@ -20,7 +20,6 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/reviews")
-@CrossOrigin(origins = "*", maxAge = 3600)
 public class PerformanceReviewController {
 
     @Autowired
