@@ -35,7 +35,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/health", "/ws/**", "/").permitAll()
+                .requestMatchers("/api/auth/**", "/api/health", "/ws/**", "/", 
+                                 "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",
+                                 "/api/swagger-ui/**", "/api/v3/api-docs/**", "/api/swagger-ui.html").permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
@@ -57,7 +59,7 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    @org.springframework.beans.factory.annotation.Value("${app.cors.allowed-origins:*}")
+    @org.springframework.beans.factory.annotation.Value("${ALLOWED_ORIGINS:http://localhost:5173}")
     private String allowedOrigins;
 
     @Bean
