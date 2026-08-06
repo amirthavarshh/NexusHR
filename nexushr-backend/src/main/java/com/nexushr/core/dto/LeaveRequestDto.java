@@ -12,6 +12,7 @@ public class LeaveRequestDto {
     private LocalDate endDate;
 
     @NotBlank(message = "Reason is required")
+    @jakarta.validation.constraints.Size(min = 3, max = 250, message = "Reason must be between 3 and 250 characters")
     private String reason;
 
     @NotBlank(message = "Leave type is required (ANNUAL, SICK, UNPAID)")
