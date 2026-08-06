@@ -29,14 +29,14 @@ public class AnnouncementController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
-    public ResponseEntity<AnnouncementDTO> createAnnouncement(@RequestBody AnnouncementDTO dto, Authentication auth) {
+    public ResponseEntity<AnnouncementDTO> createAnnouncement(@jakarta.validation.Valid @RequestBody AnnouncementDTO dto, Authentication auth) {
         User user = userRepository.findByUsername(auth.getName()).orElseThrow();
         return ResponseEntity.ok(announcementService.createAnnouncement(dto, user.getId()));
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'HR')")
-    public ResponseEntity<AnnouncementDTO> updateAnnouncement(@PathVariable Long id, @RequestBody AnnouncementDTO dto) {
+    public ResponseEntity<AnnouncementDTO> updateAnnouncement(@PathVariable Long id, @jakarta.validation.Valid @RequestBody AnnouncementDTO dto) {
         return ResponseEntity.ok(announcementService.updateAnnouncement(id, dto));
     }
 
