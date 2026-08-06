@@ -27,14 +27,16 @@ public class JwtTokenProvider {
 
     @jakarta.annotation.PostConstruct
     protected void init() {
-        String defaultKey = "ZGVmYXVsdC1uZXh1cy1oci1zdXBlci1zZWNyZXQtand0LWtleS0yNTYtYml0";
-        if (secretKey == null || secretKey.isBlank() || secretKey.equals(defaultKey)) {
-            System.err.println("WARNING: JWT secret key is not set or using insecure default. Generating a secure random key for this session.");
-            this.signInKey = Jwts.SIG.HS256.key().build();
-        } else {
-            byte[] keyBytes = Decoders.BASE64.decode(secretKey);
-            this.signInKey = Keys.hmacShaKeyFor(keyBytes);
+        if (secretKey == null || secretKey.isBlank() || secretKey.equals("${JWT_SECRET_KEY}")) {
+            throw new IllegalStateException(
+                "\n\n========================================================================\n" +
+                "CRITICAL STARTUP ERROR: The environment variable JWT_SECRET_KEY is not set.\n" +
+                "Please configure JWT_SECRET_KEY in your system environment or .env file.\n" +
+                "========================================================================\n"
+            );
         }
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
+        this.signInKey = Keys.hmacShaKeyFor(keyBytes);
     }
 
     public String extractUsername(String token) {
