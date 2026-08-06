@@ -15,9 +15,11 @@ public class PerformanceReviewRequest {
     private Double rating;
 
     @NotBlank(message = "Feedback is required")
+    @jakarta.validation.constraints.Size(min = 3, max = 500, message = "Feedback must be between 3 and 500 characters")
     private String feedback;
 
     @NotBlank(message = "Goals are required")
+    @jakarta.validation.constraints.Size(min = 3, max = 500, message = "Goals must be between 3 and 500 characters")
     private String goals;
 
     public PerformanceReviewRequest() {
