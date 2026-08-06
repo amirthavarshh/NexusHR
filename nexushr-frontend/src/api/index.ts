@@ -27,6 +27,12 @@ export const api = {
     });
   },
 
+  async logout(): Promise<void> {
+    return request<void>('/auth/logout', {
+      method: 'POST'
+    });
+  },
+
   // Employee API
   async getMyProfile(): Promise<Employee> {
     return request<Employee>('/employees/me');
