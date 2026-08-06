@@ -110,11 +110,30 @@ All endpoints except `/auth/**` require a valid JWT `Authorization: Bearer <toke
 - **Stateless sessions** — `SessionCreationPolicy.STATELESS`, no server-side session state
 - **Global exception handling** — `@RestControllerAdvice` prevents stack trace leaks
 - **CORS** — configured for Docker and public deployment environments
+- **Mandatory JWT Secret Key** — The application enforces token signature security by requiring `JWT_SECRET_KEY` as a custom environment variable at startup, failing to boot with a clear console error banner if it is missing.
+
+---
+
+## Environment Configuration
+
+Before running the application, define these variables in your environment or a `.env` file in the root directory:
+
+| Variable | Description | Requirement |
+|---|---|---|
+| `JWT_SECRET_KEY` | A Base64-encoded secret key of at least 256 bits for signing JWTs | **MANDATORY** (Application will fail to start if missing) |
+| `HF_API_KEY` | Hugging Face API token for embeddings and policy completions | Optional (Enables RAG policy chatbot) |
 
 ---
 
 ## Local Setup (Docker — no JDK or Node required)
 
+First, create a `.env` file in the root folder with your security configuration:
+```env
+JWT_SECRET_KEY=your_base64_encoded_key_here
+HF_API_KEY=your_huggingface_api_token_here
+```
+
+Then run:
 ```bash
 git clone https://github.com/amirthavarshh/NexusHR.git
 cd NexusHR
@@ -125,8 +144,17 @@ docker compose up --build -d
 |---|---|
 | Frontend | http://localhost:5173 |
 | Backend API | http://localhost:8080/api |
+| Swagger API Playground | http://localhost:8080/swagger-ui.html |
 | PostgreSQL | http://localhost:5432 |
 | Redis | http://localhost:6379 |
+
+### API Interactive Playground
+
+The backend exposes an interactive OpenAPI Swagger UI playground:
+* **Swagger UI Playground**: [http://localhost:8080/swagger-ui.html](http://localhost:8080/swagger-ui.html)
+* **OpenAPI Specs**: [http://localhost:8080/v3/api-docs](http://localhost:8080/v3/api-docs)
+
+It documents all 22 REST endpoints, validates request/response payloads, and allows interactive testing via JWT Cookie (`token`) or Standard Authorization Bearer token header authorization.
 
 Docker Compose spins up all four services with health checks and persistent volumes automatically.
 
