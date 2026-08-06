@@ -5,15 +5,10 @@ export interface FetchOptions extends RequestInit {
 }
 
 export async function request<T>(path: string, options: FetchOptions = {}): Promise<T> {
-  const token = localStorage.getItem('token');
   const headers = new Headers(options.headers);
   
   if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
     headers.set('Content-Type', 'application/json');
-  }
-  
-  if (token) {
-    headers.set('Authorization', `Bearer ${token}`);
   }
 
   const fetchOptions: RequestInit = {
