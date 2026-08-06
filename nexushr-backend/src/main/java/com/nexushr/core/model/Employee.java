@@ -23,17 +23,22 @@ public class Employee {
     private Employee manager;
 
     @Column(name = "first_name", nullable = false)
+    @jakarta.validation.constraints.NotBlank(message = "First name is required")
     private String firstName;
 
     @Column(name = "last_name", nullable = false)
+    @jakarta.validation.constraints.NotBlank(message = "Last name is required")
     private String lastName;
 
     @Column(unique = true, nullable = false)
+    @jakarta.validation.constraints.NotBlank(message = "Email is required")
+    @jakarta.validation.constraints.Email(message = "Email must be valid")
     private String email;
 
     private String phone;
 
     @Column(name = "department", nullable = false)
+    @jakarta.validation.constraints.NotBlank(message = "Department is required")
     private String department;
 
     @ManyToOne(fetch = FetchType.EAGER)
@@ -42,19 +47,27 @@ public class Employee {
     private Department departmentEntity;
 
     @Column(nullable = false)
+    @jakarta.validation.constraints.NotBlank(message = "Position is required")
     private String position;
 
     @Column(name = "hire_date", nullable = false)
+    @jakarta.validation.constraints.NotNull(message = "Hire date is required")
+    @jakarta.validation.constraints.PastOrPresent(message = "Hire date must be in the past or present")
     private LocalDate hireDate;
 
     @Column(nullable = false)
+    @jakarta.validation.constraints.NotNull(message = "Salary is required")
+    @jakarta.validation.constraints.Positive(message = "Salary must be positive")
     private Double salary;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @jakarta.validation.constraints.NotNull(message = "Status is required")
     private EmployeeStatus status;
 
     @Column(name = "performance_rating")
+    @jakarta.validation.constraints.Min(value = 1, message = "Performance rating must be at least 1")
+    @jakarta.validation.constraints.Max(value = 5, message = "Performance rating must be at most 5")
     private Double performanceRating;
 
     public Employee() {
