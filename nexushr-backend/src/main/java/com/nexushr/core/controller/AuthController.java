@@ -19,38 +19,49 @@ public class AuthController {
     @Autowired
     private jakarta.servlet.http.HttpServletRequest servletRequest;
 
-    private final java.util.concurrent.ConcurrentHashMap<String, java.util.List<Long>> loginAttempts = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.concurrent.ConcurrentHashMap<String, io.github.bucket4j.Bucket> loginBuckets = new java.util.concurrent.ConcurrentHashMap<>();
+    private final java.util.concurrent.ConcurrentHashMap<String, io.github.bucket4j.Bucket> registerBuckets = new java.util.concurrent.ConcurrentHashMap<>();
 
-    private void checkRateLimit(String ip) {
-        long now = System.currentTimeMillis();
-        long limitWindow = 60000; // 1 minute
-        int maxAttempts = 5; // 5 attempts per minute
-
-        java.util.List<Long> attempts = loginAttempts.computeIfAbsent(ip, k -> new java.util.concurrent.CopyOnWriteArrayList<>());
-        attempts.removeIf(time -> now - time > limitWindow);
-
-        if (attempts.size() >= maxAttempts) {
+    private void consumeLoginToken(String ip) {
+        io.github.bucket4j.Bucket bucket = loginBuckets.computeIfAbsent(ip, key -> 
+            io.github.bucket4j.Bucket.builder()
+                .addLimit(io.github.bucket4j.Bandwidth.classic(5, io.github.bucket4j.Refill.greedy(5, java.time.Duration.ofMinutes(1))))
+                .build()
+        );
+        if (!bucket.tryConsume(1)) {
             throw new org.springframework.web.server.ResponseStatusException(
                 org.springframework.http.HttpStatus.TOO_MANY_REQUESTS,
                 "Too many login attempts. Please try again in a minute."
             );
         }
-        attempts.add(now);
+    }
+
+    private void consumeRegisterToken(String ip) {
+        io.github.bucket4j.Bucket bucket = registerBuckets.computeIfAbsent(ip, key -> 
+            io.github.bucket4j.Bucket.builder()
+                .addLimit(io.github.bucket4j.Bandwidth.classic(3, io.github.bucket4j.Refill.greedy(3, java.time.Duration.ofMinutes(1))))
+                .build()
+        );
+        if (!bucket.tryConsume(1)) {
+            throw new org.springframework.web.server.ResponseStatusException(
+                org.springframework.http.HttpStatus.TOO_MANY_REQUESTS,
+                "Too many registration attempts. Please try again in a minute."
+            );
+        }
     }
 
     private void addTokenCookie(String token, jakarta.servlet.http.HttpServletResponse response) {
-        jakarta.servlet.http.Cookie cookie = new jakarta.servlet.http.Cookie("token", token);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false); // Can be changed to true in production if running HTTPS
-        cookie.setPath("/");
-        cookie.setMaxAge(86400); // 1 day
-        response.addCookie(cookie);
+        // httpOnly, Secure, SameSite=Strict cookie configuration
+        String cookieHeader = String.format("token=%s; Path=/; Max-Age=86400; HttpOnly; Secure; SameSite=Strict", token);
+        response.addHeader("Set-Cookie", cookieHeader);
     }
 
     @PostMapping("/register")
     public ResponseEntity<AuthResponse> registerUser(
             @Valid @RequestBody RegisterRequest signUpRequest,
             jakarta.servlet.http.HttpServletResponse response) {
+        String ip = servletRequest.getRemoteAddr();
+        consumeRegisterToken(ip);
         AuthResponse res = authService.register(signUpRequest);
         addTokenCookie(res.getToken(), response);
         return ResponseEntity.ok(res);
@@ -67,9 +78,16 @@ public class AuthController {
             @Valid @RequestBody AuthRequest loginRequest,
             jakarta.servlet.http.HttpServletResponse response) {
         String ip = servletRequest.getRemoteAddr();
-        checkRateLimit(ip);
+        consumeLoginToken(ip);
         AuthResponse res = authService.login(loginRequest);
         addTokenCookie(res.getToken(), response);
         return ResponseEntity.ok(res);
+    }
+
+    @PostMapping("/logout")
+    public ResponseEntity<Void> logout(jakarta.servlet.http.HttpServletResponse response) {
+        String cookieHeader = "token=; Path=/; Max-Age=0; HttpOnly; Secure; SameSite=Strict";
+        response.addHeader("Set-Cookie", cookieHeader);
+        return ResponseEntity.ok().build();
     }
 }
