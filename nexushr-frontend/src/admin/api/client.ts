@@ -7,19 +7,8 @@ export const adminClient = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true,
 });
-
-// Request interceptor to inject JWT token
-adminClient.interceptors.request.use(
-  (config) => {
-    const token = localStorage.getItem('token');
-    if (token && config.headers) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
-    return config;
-  },
-  (error) => Promise.reject(error)
-);
 
 // Response interceptor to handle 401 Unauthorized globally
 adminClient.interceptors.response.use(
