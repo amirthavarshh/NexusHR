@@ -39,7 +39,25 @@ public class PayrollService {
             }
 
             double basic = employee.getSalary();
-            double allowances = Math.round(basic * 0.10 * 100.0) / 100.0; // 10% allowance
+
+            // Calculate actual working days (weekdays) in the pay period
+            long periodWorkingDays = 0;
+            LocalDate cur = start;
+            while (!cur.isAfter(end)) {
+                java.time.DayOfWeek day = cur.getDayOfWeek();
+                if (day != java.time.DayOfWeek.SATURDAY && day != java.time.DayOfWeek.SUNDAY) {
+                    periodWorkingDays++;
+                }
+                cur = cur.plusDays(1);
+            }
+            if (periodWorkingDays == 0) periodWorkingDays = 22; // secure fallback
+
+            // Daily rate based on actual working days in the range
+            double dailyRate = basic / (double) periodWorkingDays;
+            
+            // Pro-rate basic salary to the actual working days relative to a standard 22-day month
+            double proRatedBasic = Math.round(basic * ((double) periodWorkingDays / 22.0) * 100.0) / 100.0;
+            double allowances = Math.round(proRatedBasic * 0.10 * 100.0) / 100.0; // 10% allowance of pro-rated basic
 
             // Calculate deductions based on UNPAID leaves approved during this pay period
             List<LeaveRequest> leaves = leaveRequestRepository.findByEmployee_Id(employee.getId());
@@ -56,28 +74,14 @@ public class PayrollService {
                 }
             }
 
-            // Calculate actual working days (weekdays) in the pay period
-            long periodWorkingDays = 0;
-            LocalDate cur = start;
-            while (!cur.isAfter(end)) {
-                java.time.DayOfWeek day = cur.getDayOfWeek();
-                if (day != java.time.DayOfWeek.SATURDAY && day != java.time.DayOfWeek.SUNDAY) {
-                    periodWorkingDays++;
-                }
-                cur = cur.plusDays(1);
-            }
-            if (periodWorkingDays == 0) periodWorkingDays = 22; // secure fallback
-
-            // Deduct salary per day based on actual working days in the period
-            double dailyRate = basic / (double) periodWorkingDays;
             double deductions = Math.round(dailyRate * unpaidDays * 100.0) / 100.0;
-            double net = basic + allowances - deductions;
+            double net = proRatedBasic + allowances - deductions;
 
             Payroll payroll = Payroll.builder()
                     .employee(employee)
                     .payPeriodStart(start)
                     .payPeriodEnd(end)
-                    .basicSalary(basic)
+                    .basicSalary(proRatedBasic)
                     .allowances(allowances)
                     .deductions(deductions)
                     .netSalary(Math.max(0.0, Math.round(net * 100.0) / 100.0))
