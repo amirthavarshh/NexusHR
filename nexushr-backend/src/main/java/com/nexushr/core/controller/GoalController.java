@@ -17,7 +17,8 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
+import com.nexushr.core.dto.GoalCreateRequest;
+import com.nexushr.core.dto.GoalStatusRequest;
 
 @RestController
 @RequestMapping("/goals")
@@ -34,21 +35,11 @@ public class GoalController {
 
     @PostMapping
     @PreAuthorize("hasAnyRole('MANAGER', 'ADMIN', 'HR')")
-    public ResponseEntity<Goal> createGoal(@RequestBody Map<String, Object> payload, Authentication authentication) {
-        if (!payload.containsKey("employeeId") || payload.get("employeeId") == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "employeeId is required");
-        }
-        if (!payload.containsKey("title") || payload.get("title") == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "title is required");
-        }
-        if (!payload.containsKey("targetDate") || payload.get("targetDate") == null) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "targetDate is required");
-        }
-
-        Long employeeId = Long.valueOf(payload.get("employeeId").toString());
-        String title = payload.get("title").toString();
-        String description = payload.get("description") != null ? payload.get("description").toString() : "";
-        LocalDate targetDate = LocalDate.parse(payload.get("targetDate").toString());
+    public ResponseEntity<Goal> createGoal(@jakarta.validation.Valid @RequestBody GoalCreateRequest payload, Authentication authentication) {
+        Long employeeId = payload.getEmployeeId();
+        String title = payload.getTitle();
+        String description = payload.getDescription() != null ? payload.getDescription() : "";
+        LocalDate targetDate = payload.getTargetDate();
 
         Employee employee = employeeRepository.findById(employeeId)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Employee not found"));
@@ -100,9 +91,9 @@ public class GoalController {
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<Goal> updateGoalStatus(@PathVariable Long id, @RequestBody Map<String, String> payload,
+    public ResponseEntity<Goal> updateGoalStatus(@PathVariable Long id, @jakarta.validation.Valid @RequestBody GoalStatusRequest payload,
             Authentication authentication) {
-        String statusStr = payload.get("status");
+        String statusStr = payload.getStatus();
         GoalStatus newStatus;
         try {
             newStatus = GoalStatus.valueOf(statusStr.toUpperCase());
