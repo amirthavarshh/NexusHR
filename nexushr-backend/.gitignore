@@ -38,3 +38,8 @@ out/
 
 ### Dev scratch files — never commit these ###
 scratch/
+.env
+.env.*
+node_modules/
+bin/
+.gradle/
