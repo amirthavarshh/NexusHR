@@ -28,11 +28,17 @@ server:
   servlet:
     context-path: /
 
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+
 
 security:
   jwt:
     # Base64-encoded secret key (at least 256 bits)
-    secret-key: ${JWT_SECRET_KEY:ZGVmYXVsdC1uZXh1cy1oci1zdXBlci1zZWNyZXQtand0LWtleS0yNTYtYml0}
+    secret-key: ${JWT_SECRET_KEY}
     expiration-time: 86400000 
 
 app:
