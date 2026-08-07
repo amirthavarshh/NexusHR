@@ -17,8 +17,10 @@ export const AppShell: React.FC = () => {
   // Sync dark mode class
   React.useEffect(() => {
     if (darkMode) {
+      document.documentElement.classList.add('dark');
       document.body.classList.add('dark');
     } else {
+      document.documentElement.classList.remove('dark');
       document.body.classList.remove('dark');
     }
     localStorage.setItem('darkMode', darkMode.toString());

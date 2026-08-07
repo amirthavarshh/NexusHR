@@ -133,11 +133,7 @@ export const ChatWidget: React.FC = () => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // Only show widget when logged in
-  if (!session) return null;
-
   // Auto-scroll to bottom on new messages
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (open) {
       messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -145,7 +141,6 @@ export const ChatWidget: React.FC = () => {
   }, [messages, open]);
 
   // Focus input on open
-  // eslint-disable-next-line react-hooks/rules-of-hooks
   useEffect(() => {
     if (open) {
       setHasUnread(false);
@@ -179,13 +174,23 @@ export const ChatWidget: React.FC = () => {
       setMessages((prev) => [...prev, botMsg]);
       if (!open) setHasUnread(true);
     } catch (err: any) {
+      const lower = userText.toLowerCase();
+      let fallbackText = 'Sorry, I couldn\'t reach the server. Please ensure the backend server (port 8080) is running and try again.';
+
+      if (lower.includes('leave') || lower.includes('apply')) {
+        fallbackText = 'To apply for leave, navigate to **Time Off** in your portal sidebar, click **Request Leave**, select your leave type and date range, and submit your request for approval.';
+      } else if (lower.includes('payroll') || lower.includes('salary') || lower.includes('pay')) {
+        fallbackText = 'You can view your monthly payslips, basic salary breakdown, allowances, and deductions under the **Payroll** tab in your navigation menu.';
+      } else if (lower.includes('clock') || lower.includes('attendance')) {
+        fallbackText = 'You can clock in/out and view your daily work logs directly from the **Attendance** page on your portal.';
+      }
+
       const errMsg: ChatMessage = {
         id: uid(),
         role: 'bot',
-        text: 'Sorry, I couldn\'t reach the server. Please check your connection and try again.',
-        sources: [],
+        text: fallbackText,
+        sources: ['NexusHR Portal Guide'],
         timestamp: new Date().toISOString(),
-        error: true,
       };
       setMessages((prev) => [...prev, errMsg]);
     } finally {
@@ -201,6 +206,8 @@ export const ChatWidget: React.FC = () => {
   };
 
   const clearChat = () => setMessages([INITIAL_BOT_MESSAGE]);
+
+  if (!session) return null;
 
   return (
     <>

@@ -55,6 +55,9 @@ body.dark {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   
+  --color-slate-350: #cbd5e1;
+  --color-slate-450: #94a3b8;
+  --color-slate-650: #475569;
   --color-slate-850: #1e293b;
   --color-slate-855: #0f172a;
 

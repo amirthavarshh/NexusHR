@@ -13,8 +13,10 @@ export const Layout: React.FC = () => {
 
   useEffect(() => {
     if (darkMode) {
+      document.documentElement.classList.add('dark');
       document.body.classList.add('dark');
     } else {
+      document.documentElement.classList.remove('dark');
       document.body.classList.remove('dark');
     }
     localStorage.setItem('darkMode', darkMode.toString());
@@ -24,7 +26,7 @@ export const Layout: React.FC = () => {
   if (session.role !== 'HR') return <Navigate to="/dashboard" replace />;
 
   return (
-    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 text-slate-700 font-sans selection:bg-teal-100 selection:text-teal-900 relative transition-colors duration-300 dark:bg-slate-900 dark:text-slate-350">
+    <div className="flex-1 flex flex-col min-h-screen bg-slate-50 text-slate-700 font-sans selection:bg-teal-100 selection:text-teal-900 relative transition-colors duration-300 dark:bg-slate-900 dark:text-slate-200">
       <Toast toast={toast} />
       <div className="flex flex-1 overflow-hidden h-screen">
         <Sidebar collapsed={collapsed} setCollapsed={setCollapsed} />
