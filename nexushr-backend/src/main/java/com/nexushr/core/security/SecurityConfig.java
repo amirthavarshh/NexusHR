@@ -35,9 +35,13 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**", "/api/health", "/ws/**", "/", 
-                                 "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",
-                                 "/api/swagger-ui/**", "/api/v3/api-docs/**", "/api/swagger-ui.html").permitAll()
+                .requestMatchers(
+                    "/auth/**", "/api/auth/**",
+                    "/health", "/api/health",
+                    "/ws/**", "/", 
+                    "/swagger-ui/**", "/v3/api-docs/**", "/swagger-ui.html",
+                    "/api/swagger-ui/**", "/api/v3/api-docs/**", "/api/swagger-ui.html"
+                ).permitAll()
                 .anyRequest().authenticated()
             )
             .sessionManagement(session -> session
@@ -59,7 +63,7 @@ public class SecurityConfig {
         return config.getAuthenticationManager();
     }
 
-    @org.springframework.beans.factory.annotation.Value("${ALLOWED_ORIGINS:http://localhost:5173}")
+    @org.springframework.beans.factory.annotation.Value("${ALLOWED_ORIGINS:http://localhost:5173,http://127.0.0.1:5173}")
     private String allowedOrigins;
 
     @Bean
@@ -76,8 +80,8 @@ public class SecurityConfig {
             configuration.setAllowCredentials(true);
         }
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Content-Type", "Accept"));
-        configuration.setExposedHeaders(Arrays.asList("Authorization"));
+        configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("Authorization", "Set-Cookie"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

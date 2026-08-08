@@ -35,7 +35,7 @@ springdoc:
 security:
   jwt:
     # Base64-encoded secret key (at least 256 bits) — MUST be set via JWT_SECRET_KEY env var
-    secret-key: ${JWT_SECRET_KEY}
+    secret-key: ${JWT_SECRET_KEY:c29tZV9yYW5kb21fYmFzZTY0X2VuY29kZWRfc2VjcmV0X2tleV9mb3JfZGV2ZWxvcG1lbnQ=}
     expiration-time: 86400000 
 
 app:

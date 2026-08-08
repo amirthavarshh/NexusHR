@@ -25,7 +25,10 @@ public class AuthController {
     private void consumeLoginToken(String ip) {
         io.github.bucket4j.Bucket bucket = loginBuckets.computeIfAbsent(ip, key -> 
             io.github.bucket4j.Bucket.builder()
-                .addLimit(io.github.bucket4j.Bandwidth.classic(5, io.github.bucket4j.Refill.greedy(5, java.time.Duration.ofMinutes(1))))
+                .addLimit(io.github.bucket4j.Bandwidth.builder()
+                    .capacity(5)
+                    .refillGreedy(5, java.time.Duration.ofMinutes(1))
+                    .build())
                 .build()
         );
         if (!bucket.tryConsume(1)) {
@@ -39,7 +42,10 @@ public class AuthController {
     private void consumeRegisterToken(String ip) {
         io.github.bucket4j.Bucket bucket = registerBuckets.computeIfAbsent(ip, key -> 
             io.github.bucket4j.Bucket.builder()
-                .addLimit(io.github.bucket4j.Bandwidth.classic(3, io.github.bucket4j.Refill.greedy(3, java.time.Duration.ofMinutes(1))))
+                .addLimit(io.github.bucket4j.Bandwidth.builder()
+                    .capacity(3)
+                    .refillGreedy(3, java.time.Duration.ofMinutes(1))
+                    .build())
                 .build()
         );
         if (!bucket.tryConsume(1)) {
@@ -51,8 +57,9 @@ public class AuthController {
     }
 
     private void addTokenCookie(String token, jakarta.servlet.http.HttpServletResponse response) {
-        // httpOnly, Secure, SameSite=Strict cookie configuration
-        String cookieHeader = String.format("token=%s; Path=/; Max-Age=86400; HttpOnly; Secure; SameSite=Strict", token);
+        boolean isSecure = servletRequest.isSecure() || "https".equalsIgnoreCase(servletRequest.getHeader("X-Forwarded-Proto"));
+        String cookieHeader = String.format("token=%s; Path=/; Max-Age=86400; HttpOnly%s; SameSite=Lax", 
+            token, isSecure ? "; Secure" : "");
         response.addHeader("Set-Cookie", cookieHeader);
     }
 
