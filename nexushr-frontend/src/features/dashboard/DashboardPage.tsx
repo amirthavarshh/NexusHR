@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatCurrency } from '../../lib/format';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -139,7 +140,7 @@ export const DashboardPage: React.FC = () => {
                 <div className="flex justify-between items-center border-b border-surface-border pb-2">
                   <span className="text-xs text-foreground/50 uppercase">Basic Salary</span>
                   <span className="text-xs font-mono font-semibold text-foreground">
-                    {profile ? `$${profile.salary.toLocaleString()}/mo` : 'N/A'}
+                    {profile ? `${formatCurrency(profile.salary)}/mo` : 'N/A'}
                   </span>
                 </div>
                 <div className="flex justify-between items-center">

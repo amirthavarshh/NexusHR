@@ -177,9 +177,9 @@ export const LeaveCenter: React.FC = () => {
                   <div className="w-36 shrink-0 text-[10px] font-bold text-slate-600 dark:text-slate-400 truncate pr-2">{empName}</div>
                   {calDays.map((d, i) => {
                     const leave = activeLeaves.find(l => {
-                      if (l.employee?.id !== emp.id) return false;
-                      const start = new Date(l.startDate); start.setHours(0);
-                      const end = new Date(l.endDate); end.setHours(23);
+                      if (!l.employee || String(l.employee.id) !== String(emp.id)) return false;
+                      const start = new Date(l.startDate); start.setHours(0, 0, 0, 0);
+                      const end = new Date(l.endDate); end.setHours(23, 59, 59, 999);
                       return d >= start && d <= end;
                     });
                     return (

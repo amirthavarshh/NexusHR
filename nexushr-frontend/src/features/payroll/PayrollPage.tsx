@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatCurrency } from '../../lib/format';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -96,11 +97,11 @@ Status: ${row.status}
 Processed At: ${row.processedAt ? formatDate(row.processedAt) : 'N/A'}
 
 -----------------------------------
-Basic Salary:  $${row.basicSalary.toLocaleString()}
-Allowances:    +$${row.allowances.toLocaleString()}
-Deductions:    -$${row.deductions.toLocaleString()}
+Basic Salary:  ${formatCurrency(row.basicSalary)}
+Allowances:    +${formatCurrency(row.allowances)}
+Deductions:    -${formatCurrency(row.deductions)}
 -----------------------------------
-NET SALARY:    $${row.netSalary.toLocaleString()}
+NET SALARY:    ${formatCurrency(row.netSalary)}
 ===================================
     `;
     const blob = new Blob([slipText.trim()], { type: 'text/plain' });
@@ -171,10 +172,10 @@ NET SALARY:    $${row.netSalary.toLocaleString()}
                       <tr key={row.id} className="border-b border-surface-border hover:bg-surface-muted/50 transition-colors">
                         <td className="py-3 font-semibold text-foreground">{row.employee?.firstName} {row.employee?.lastName}</td>
                         <td className="py-3 font-mono text-xs">{formatDate(row.payPeriodStart)} - {formatDate(row.payPeriodEnd)}</td>
-                        <td className="py-3 font-mono text-xs">${row.basicSalary.toLocaleString()}</td>
-                        <td className="py-3 font-mono text-xs text-emerald-600">+${row.allowances.toLocaleString()}</td>
-                        <td className="py-3 font-mono text-xs text-rose-500">-${row.deductions.toLocaleString()}</td>
-                        <td className="py-3 font-mono text-xs font-bold text-foreground">${row.netSalary.toLocaleString()}</td>
+                        <td className="py-3 font-mono text-xs">{formatCurrency(row.basicSalary)}</td>
+                        <td className="py-3 font-mono text-xs text-emerald-600">+{formatCurrency(row.allowances)}</td>
+                        <td className="py-3 font-mono text-xs text-rose-500">-{formatCurrency(row.deductions)}</td>
+                        <td className="py-3 font-mono text-xs font-bold text-foreground">{formatCurrency(row.netSalary)}</td>
                         <td className="py-3">
                           <Badge variant={row.status === 'PAID' ? 'success' : 'warning'}>
                             {row.status}
@@ -236,10 +237,10 @@ NET SALARY:    $${row.netSalary.toLocaleString()}
                   {payrolls.map((row: any) => (
                     <tr key={row.id} className="border-b border-surface-border hover:bg-surface-muted/50 transition-colors">
                       <td className="py-3 font-semibold font-mono text-xs text-foreground">{formatDate(row.payPeriodStart)} - {formatDate(row.payPeriodEnd)}</td>
-                      <td className="py-3 font-mono text-xs">${row.basicSalary.toLocaleString()}</td>
-                      <td className="py-3 font-mono text-xs text-emerald-600">+${row.allowances.toLocaleString()}</td>
-                      <td className="py-3 font-mono text-xs text-rose-500">-${row.deductions.toLocaleString()}</td>
-                      <td className="py-3 font-mono text-xs font-bold text-foreground">${row.netSalary.toLocaleString()}</td>
+                      <td className="py-3 font-mono text-xs">{formatCurrency(row.basicSalary)}</td>
+                      <td className="py-3 font-mono text-xs text-emerald-600">+{formatCurrency(row.allowances)}</td>
+                      <td className="py-3 font-mono text-xs text-rose-500">-{formatCurrency(row.deductions)}</td>
+                      <td className="py-3 font-mono text-xs font-bold text-foreground">{formatCurrency(row.netSalary)}</td>
                       <td className="py-3">
                         <Badge variant={row.status === 'PAID' ? 'success' : 'warning'}>
                           {row.status}

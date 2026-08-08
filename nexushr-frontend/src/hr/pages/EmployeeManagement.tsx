@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatCurrency } from '../../lib/format';
 import { useAllEmployees, useCreateEmployee, useUpdateEmployee } from '../hooks/useHrQuery';
 import type { Employee, EmployeeStatus } from '../types';
 import {
@@ -143,7 +144,7 @@ export const EmployeeManagement: React.FC = () => {
                       </TableCell>
                       <TableCell className="text-xs text-slate-600 dark:text-slate-400">{emp.department}</TableCell>
                       <TableCell className="text-xs text-slate-500">{emp.position}</TableCell>
-                      <TableCell className="font-mono text-xs font-bold text-slate-700 dark:text-slate-350">${emp.salary.toLocaleString()}</TableCell>
+                      <TableCell className="font-mono text-xs font-bold text-slate-700 dark:text-slate-350">{formatCurrency(emp.salary)}</TableCell>
                       <TableCell>
                         {emp.performanceRating ? (
                           <span className="bg-amber-50 text-amber-700 text-[10px] font-extrabold px-1.5 py-0.5 rounded dark:bg-amber-950/20 dark:text-amber-400">
@@ -216,7 +217,7 @@ export const EmployeeManagement: React.FC = () => {
                   <div className="flex items-center gap-2.5 text-slate-500"><CalendarDays size={12} /><span>Hired: {selectedEmployee.hireDate ? new Date(selectedEmployee.hireDate).toLocaleDateString('en', { year: 'numeric', month: 'long', day: 'numeric' }) : '—'}</span></div>
                   <div className="flex justify-between pt-2 border-t border-slate-100 dark:border-slate-800">
                     <span className="flex items-center gap-1.5 text-slate-500"><DollarSign size={12} /> Salary</span>
-                    <span className="font-mono font-bold text-slate-700 dark:text-slate-350">${selectedEmployee.salary.toLocaleString()}/mo</span>
+                    <span className="font-mono font-bold text-slate-700 dark:text-slate-350">{formatCurrency(selectedEmployee.salary)}/mo</span>
                   </div>
                   <div className="flex justify-between">
                     <span className="text-slate-500">Status</span>

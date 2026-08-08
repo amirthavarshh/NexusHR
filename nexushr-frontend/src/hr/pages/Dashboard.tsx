@@ -1,4 +1,5 @@
 import React from 'react';
+import { formatCurrency } from '../../lib/format';
 import { useHrMetrics, useHrActivities } from '../hooks/useHrQuery';
 import {
   Card, CardContent, CardHeader, CardTitle, CardDescription
@@ -45,7 +46,7 @@ export const Dashboard: React.FC = () => {
     { label: 'Active Staff', value: metrics.activeEmployees, icon: UserCheck, color: 'text-emerald-600', bg: 'bg-emerald-50 dark:bg-emerald-950/20', border: 'border-emerald-100 dark:border-emerald-900/30' },
     { label: 'On Leave Today', value: metrics.onLeaveCount, icon: CalendarCheck, color: 'text-amber-600', bg: 'bg-amber-50 dark:bg-amber-950/20', border: 'border-amber-100 dark:border-amber-900/30' },
     { label: 'Pending Leaves', value: metrics.pendingLeaves, icon: Clock, color: 'text-rose-600', bg: 'bg-rose-50 dark:bg-rose-950/20', border: 'border-rose-100 dark:border-rose-900/30' },
-    { label: 'Avg Salary', value: `$${metrics.averageSalary.toLocaleString()}`, icon: DollarSign, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950/20', border: 'border-indigo-100 dark:border-indigo-900/30' },
+    { label: 'Avg Salary', value: formatCurrency(metrics.averageSalary), icon: DollarSign, color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950/20', border: 'border-indigo-100 dark:border-indigo-900/30' },
     { label: 'Avg Performance', value: `${metrics.averagePerformance}/5`, icon: TrendingUp, color: 'text-purple-600', bg: 'bg-purple-50 dark:bg-purple-950/20', border: 'border-purple-100 dark:border-purple-900/30' },
   ] : [];
 

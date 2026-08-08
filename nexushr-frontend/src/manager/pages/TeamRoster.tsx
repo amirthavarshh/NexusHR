@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatCurrency } from '../../lib/format';
 import { 
   useDirectReports, useAttritionPrediction, useSkillGapAnalysis 
 } from '../hooks/useManagerQuery';
@@ -270,7 +271,7 @@ export const TeamRoster: React.FC = () => {
                         <DollarSign size={13} />
                         <span>Monthly Salary:</span>
                       </span>
-                      <span className="font-mono font-bold text-foreground/70">${selectedReport.salary.toLocaleString()}/mo</span>
+                      <span className="font-mono font-bold text-foreground/70">{formatCurrency(selectedReport.salary)}/mo</span>
                     </div>
                     <div className="flex justify-between items-center text-foreground/50">
                       <span className="flex items-center gap-1.5">

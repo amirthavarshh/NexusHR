@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatCurrency } from '../../lib/format';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../api';
 import { useQuery, useMutation } from '@tanstack/react-query';
@@ -78,7 +79,7 @@ export const ReportsPage: React.FC = () => {
             </Card>
             <Card className="p-4 text-center border-t-4 border-t-emerald-500 shadow-sm">
               <span className="text-xs text-foreground/50 block mb-1 font-bold">Average Monthly Pay</span>
-              <span className="text-2xl font-bold text-emerald-600">${Math.round(metrics.averageSalary).toLocaleString()}</span>
+              <span className="text-2xl font-bold text-emerald-600">{formatCurrency(Math.round(metrics.averageSalary))}</span>
             </Card>
             <Card className="p-4 text-center border-t-4 border-t-amber-500 shadow-sm">
               <span className="text-xs text-foreground/50 block mb-1 font-bold">Avg Performance KPI</span>

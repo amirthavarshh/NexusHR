@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatCurrency } from '../../lib/format';
 import { 
   useDepartments, useCreateDepartment, useUpdateDepartment, useDeleteDepartment,
   useManagers 
@@ -152,7 +153,7 @@ export const DepartmentManagement: React.FC = () => {
         <Card className="p-4 flex items-center justify-between border-l-4 border-l-amber-500 shadow-sm">
           <div>
             <span className="text-[10px] font-bold text-foreground/50 uppercase tracking-wide block">Total Budget Allocation</span>
-            <span className="text-2xl font-extrabold text-foreground mt-1.5 block leading-none">${totalBudget.toLocaleString()}</span>
+            <span className="text-2xl font-extrabold text-foreground mt-1.5 block leading-none">{formatCurrency(totalBudget)}</span>
           </div>
           <DollarSign size={20} className="text-amber-500" />
         </Card>
@@ -160,7 +161,7 @@ export const DepartmentManagement: React.FC = () => {
         <Card className="p-4 flex items-center justify-between border-l-4 border-l-emerald-500 shadow-sm">
           <div>
             <span className="text-[10px] font-bold text-foreground/50 uppercase tracking-wide block">Average Department Budget</span>
-            <span className="text-2xl font-extrabold text-foreground mt-1.5 block leading-none">${Math.round(averageBudget).toLocaleString()}</span>
+            <span className="text-2xl font-extrabold text-foreground mt-1.5 block leading-none">{formatCurrency(Math.round(averageBudget))}</span>
           </div>
           <Users size={20} className="text-emerald-500" />
         </Card>
@@ -184,21 +185,48 @@ export const DepartmentManagement: React.FC = () => {
 
       {/* Department Roster Table Card */}
       <Card className="border-t-4 border-t-emerald-500 shadow-sm">
-        <CardHeader>
-          <CardTitle>Departments Structure Directory</CardTitle>
-          <CardDescription>Default business unit nodes mapped to cost ledgers.</CardDescription>
+        <CardHeader className="pb-3 border-b border-surface-border">
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+            <div>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Network size={16} className="text-emerald-500" />
+                <span>Active Department Nodes ({filteredDepts.length})</span>
+              </CardTitle>
+              <CardDescription>Comprehensive ledger of cost centers and active node counts.</CardDescription>
+            </div>
+            
+            <div className="flex gap-2">
+              <div className="relative w-64">
+                <Search size={14} className="absolute left-3 top-3 text-foreground/40" />
+                <Input 
+                  placeholder="Search department, manager..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-8 text-xs py-2"
+                />
+              </div>
+              
+              <Button size="sm" variant="success" className="gap-1.5 shrink-0" onClick={handleOpenCreate}>
+                <Plus size={14} />
+                <span>New Node</span>
+              </Button>
+            </div>
+          </div>
         </CardHeader>
-        <CardContent>
+
+        <CardContent className="pt-4">
           {isDeptsLoading ? (
             <div className="text-center py-12 text-foreground/40 text-xs">Loading department metrics...</div>
-          ) : filteredDepts.length > 0 ? (
+          ) : filteredDepts.length === 0 ? (
+            <div className="text-center py-12 text-foreground/40 text-xs font-semibold">No department records match your query filter.</div>
+          ) : (
             <Table>
               <TableHeader>
                 <TableRow>
-                  <TableHead>Code</TableHead>
+                  <TableHead>Node Code</TableHead>
                   <TableHead>Department Name</TableHead>
-                  <TableHead>Manager Head</TableHead>
-                  <TableHead>Employee Count</TableHead>
+                  <TableHead>Assigned Lead / Manager</TableHead>
+                  <TableHead>Headcount</TableHead>
                   <TableHead>Budget Limit</TableHead>
                   <TableHead>Status</TableHead>
                   <TableHead className="text-right">Actions</TableHead>
@@ -207,11 +235,11 @@ export const DepartmentManagement: React.FC = () => {
               <TableBody>
                 {filteredDepts.map((d: any) => (
                   <TableRow key={d.id}>
-                    <TableCell className="font-mono font-bold text-foreground/80">{d.code}</TableCell>
-                    <TableCell className="font-bold text-foreground">{d.name}</TableCell>
+                    <TableCell className="font-mono text-xs text-foreground/50 font-bold">{d.code}</TableCell>
+                    <TableCell className="font-extrabold text-foreground">{d.name}</TableCell>
                     <TableCell>
                       {d.managerName ? (
-                        <span className="flex items-center gap-1 text-foreground/80 font-semibold">
+                        <span className="inline-flex items-center gap-1.5 font-bold text-foreground/80">
                           <User size={12} className="text-foreground/50" />
                           <span>{d.managerName}</span>
                         </span>
@@ -220,7 +248,7 @@ export const DepartmentManagement: React.FC = () => {
                       )}
                     </TableCell>
                     <TableCell className="font-mono text-foreground/70 font-bold">{d.employeeCount} active</TableCell>
-                    <TableCell className="font-mono text-foreground/70 font-bold">${d.budget.toLocaleString()}</TableCell>
+                    <TableCell className="font-mono text-foreground/70 font-bold">{formatCurrency(d.budget)}</TableCell>
                     <TableCell>
                       <Badge variant={d.status === 'ACTIVE' ? 'success' : 'destructive'}>
                         {d.status}
@@ -240,8 +268,6 @@ export const DepartmentManagement: React.FC = () => {
                 ))}
               </TableBody>
             </Table>
-          ) : (
-            <div className="text-center py-12 text-foreground/40 text-xs">No department nodes match.</div>
           )}
         </CardContent>
       </Card>

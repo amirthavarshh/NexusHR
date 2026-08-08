@@ -40,7 +40,14 @@ export const AttendanceOversight: React.FC = () => {
       <Card className="border border-slate-100 dark:border-slate-800">
         <CardContent className="pt-5 pb-4 flex flex-col md:flex-row gap-3">
           <div className="space-y-1 flex-1">
-            <label className="text-[10px] font-bold text-slate-400 uppercase block">Date</label>
+            <div className="flex justify-between items-center">
+              <label className="text-[10px] font-bold text-slate-400 uppercase block">Date</label>
+              {dateFilter && (
+                <button onClick={() => setDateFilter('')} className="text-[10px] text-teal-600 dark:text-teal-400 font-bold hover:underline cursor-pointer">
+                  Show All Dates
+                </button>
+              )}
+            </div>
             <input type="date" value={dateFilter} onChange={e => setDateFilter(e.target.value)} className="w-full bg-slate-50 border border-slate-100 rounded px-3 py-2 text-xs outline-none focus:border-teal-400 dark:bg-slate-800 dark:border-slate-700 dark:text-white" />
           </div>
           <div className="space-y-1 w-full md:w-48">

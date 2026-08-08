@@ -1,6 +1,5 @@
 import axios from 'axios';
-
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api';
+import { BASE_URL, clearAuthSession } from '../../api/client';
 
 export const adminClient = axios.create({
   baseURL: BASE_URL,
@@ -15,16 +14,7 @@ adminClient.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // Clear auth local storage
-      localStorage.removeItem('token');
-      localStorage.removeItem('username');
-      localStorage.removeItem('email');
-      localStorage.removeItem('role');
-      localStorage.removeItem('employeeId');
-      
-      // Dispatch authorization event to redirect to sign in
-      window.dispatchEvent(new Event('auth-unauthorized'));
-      
+      clearAuthSession();
       return Promise.reject(new Error('Your session has expired. Please sign in again.'));
     }
     

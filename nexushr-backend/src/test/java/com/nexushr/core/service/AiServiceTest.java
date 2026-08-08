@@ -118,4 +118,20 @@ public class AiServiceTest {
         assertEquals(95.0, riskScore, 0.01);
         assertEquals("HIGH", result.get("riskCategory"));
     }
+
+    @Test
+    void testPredictAttritionWithNullPerformanceRating() {
+        // Employee has no review yet (performanceRating = null)
+        employee.setPerformanceRating(null);
+
+        when(employeeRepository.findById(1L)).thenReturn(Optional.of(employee));
+        when(attendanceRepository.findByEmployee_Id(1L)).thenReturn(new ArrayList<>());
+        when(leaveRequestRepository.findByEmployee_Id(1L)).thenReturn(new ArrayList<>());
+        when(employeeRepository.findByDepartment("IT")).thenReturn(Collections.singletonList(employee));
+
+        Map<String, Object> result = assertDoesNotThrow(() -> aiService.predictAttrition(1L));
+
+        assertNotNull(result);
+        assertEquals(15.0, (Double) result.get("riskScore"), 0.01);
+    }
 }

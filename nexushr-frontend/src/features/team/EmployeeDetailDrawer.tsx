@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatCurrency } from '../../lib/format';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../api';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -153,7 +154,7 @@ export const EmployeeDetailDrawer: React.FC<EmployeeDetailDrawerProps> = ({
           </div>
           <div className="flex justify-between text-xs pb-1 border-b border-surface-border">
             <span className="text-foreground/60">Basic Salary</span>
-            <span className="font-semibold text-foreground">${employee.salary?.toLocaleString()}/mo</span>
+            <span className="font-semibold text-foreground">{formatCurrency(employee.salary)}/mo</span>
           </div>
           <div className="flex justify-between text-xs">
             <span className="text-foreground/60">Performance KPI</span>

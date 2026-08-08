@@ -30,6 +30,12 @@ public class LeaveService {
             throw new IllegalArgumentException("Start date cannot be after end date");
         }
 
+        List<LeaveRequest> overlapping = leaveRequestRepository.findOverlappingLeaves(
+                employee.getId(), dto.getStartDate(), dto.getEndDate());
+        if (!overlapping.isEmpty()) {
+            throw new IllegalArgumentException("You already have an active or pending leave request overlapping with this date range");
+        }
+
         Role userRole = employee.getUser().getRole();
         LeaveStatus initialStatus;
         if (userRole == Role.ADMIN) {

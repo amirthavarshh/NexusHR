@@ -18,4 +18,12 @@ public interface LeaveRequestRepository extends JpaRepository<LeaveRequest, Long
     List<LeaveRequest> findByStatusAndStartDate(LeaveStatus status, LocalDate startDate);
 
     List<LeaveRequest> findByStatusAndEndDate(LeaveStatus status, LocalDate endDate);
+
+    @org.springframework.data.jpa.repository.Query("SELECT l FROM LeaveRequest l WHERE l.employee.id = :employeeId " +
+            "AND l.status != com.nexushr.core.model.LeaveStatus.REJECTED " +
+            "AND l.startDate <= :endDate AND l.endDate >= :startDate")
+    List<LeaveRequest> findOverlappingLeaves(
+            @org.springframework.data.repository.query.Param("employeeId") Long employeeId,
+            @org.springframework.data.repository.query.Param("startDate") LocalDate startDate,
+            @org.springframework.data.repository.query.Param("endDate") LocalDate endDate);
 }

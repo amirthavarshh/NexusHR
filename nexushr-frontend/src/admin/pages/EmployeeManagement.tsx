@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatCurrency } from '../../lib/format';
 import { 
   useAdminEmployees, useDeleteEmployee, useDepartments 
 } from '../hooks/useAdminQuery';
@@ -226,7 +227,7 @@ export const EmployeeManagement: React.FC = () => {
                     <DollarSign size={13} />
                     <span>Annualized Salary:</span>
                   </span>
-                  <span className="font-mono font-bold text-foreground">${detailEmp.salary.toLocaleString()}/mo</span>
+                  <span className="font-mono font-bold text-foreground">{formatCurrency(detailEmp.salary)}/mo</span>
                 </div>
                 <div className="flex justify-between items-center text-foreground/60">
                   <span className="flex items-center gap-1">

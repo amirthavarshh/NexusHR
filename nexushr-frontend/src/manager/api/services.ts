@@ -138,22 +138,23 @@ export const managerServices = {
   getTeamLeaves: async (): Promise<TeamLeaveRequest[]> => {
     try {
       const response = await adminClient.get<any[]>('/leaves');
-      // IT department filter
-      const list = response.data.filter(l => l.requesterRole === 'EMPLOYEE');
-      if (list.length === 0) throw new Error('Fall back to seeds');
-      return list.map(l => ({
-        id: l.id,
-        requesterId: l.requesterId || 100,
-        requesterName: l.requesterName,
-        requesterRole: l.requesterRole,
-        type: l.type,
-        startDate: l.startDate,
-        endDate: l.endDate,
-        reason: l.reason,
-        status: l.status,
-        workflowStage: l.workflowStage,
-        approvedBy: l.approvedBy
-      }));
+      return response.data.map(l => {
+        const empName = l.employee ? `${l.employee.firstName} ${l.employee.lastName}` : (l.requesterName || 'Employee');
+        const role = l.employee?.user?.role || l.requesterRole || 'EMPLOYEE';
+        return {
+          id: l.id,
+          requesterId: l.employee?.id || l.requesterId || 100,
+          requesterName: empName,
+          requesterRole: role,
+          type: l.type === 'ANNUAL' ? 'Annual Leave' : l.type === 'SICK' ? 'Sick Leave' : l.type === 'UNPAID' ? 'Unpaid Leave' : l.type,
+          startDate: l.startDate,
+          endDate: l.endDate,
+          reason: l.reason,
+          status: l.status,
+          workflowStage: l.workflowStage || l.status,
+          approvedBy: l.approvedBy
+        };
+      });
     } catch {
       return getLocalStorageData<TeamLeaveRequest[]>('leaves', seedLeaveRequests);
     }

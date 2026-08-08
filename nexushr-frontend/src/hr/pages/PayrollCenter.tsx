@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatCurrency } from '../../lib/format';
 import { useAllPayrolls, useRunPayroll, usePayPayroll } from '../hooks/useHrQuery';
 import type { Payroll } from '../types';
 import {
@@ -46,7 +47,7 @@ export const PayrollCenter: React.FC = () => {
     } catch (e: any) { showToast(e.message || 'Payment failed.', 'error'); }
   };
 
-  const fmt = (n: number) => `$${n.toLocaleString()}`;
+  const fmt = (n: number) => formatCurrency(n);
 
   return (
     <div className="space-y-6">

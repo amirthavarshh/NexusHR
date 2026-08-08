@@ -1,4 +1,13 @@
-const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api';
+export const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080/api';
+
+export function clearAuthSession() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('username');
+  localStorage.removeItem('email');
+  localStorage.removeItem('role');
+  localStorage.removeItem('employeeId');
+  window.dispatchEvent(new Event('auth-unauthorized'));
+}
 
 export interface FetchOptions extends RequestInit {
   params?: Record<string, string>;
@@ -34,14 +43,7 @@ export async function request<T>(path: string, options: FetchOptions = {}): Prom
   const response = await fetch(url, fetchOptions);
 
   if (response.status === 401) {
-    // Session expired or bad credentials
-    localStorage.removeItem('token');
-    localStorage.removeItem('username');
-    localStorage.removeItem('email');
-    localStorage.removeItem('role');
-    localStorage.removeItem('employeeId');
-    // Dispatch custom event to notify components and redirect
-    window.dispatchEvent(new Event('auth-unauthorized'));
+    clearAuthSession();
     throw new Error('Your session has expired. Please sign in again.');
   }
 

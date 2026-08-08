@@ -21,7 +21,11 @@ export const LoginPage: React.FC = () => {
       await login({ username, password });
       navigate('/dashboard');
     } catch (err: any) {
-      setError(err.message || 'Incorrect credentials');
+      if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
+        setError('Cannot connect to backend server. Please ensure the backend is running on port 8080.');
+      } else {
+        setError(err.message || 'Incorrect credentials');
+      }
     } finally {
       setLoading(false);
     }

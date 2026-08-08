@@ -53,7 +53,8 @@ public class AiService {
                 .count();
         risk += Math.min(30.0, lateOrAbsentCount * 7.5);
 
-        double latestRating = employee.getPerformanceRating();
+        Double ratingObj = employee.getPerformanceRating();
+        double latestRating = ratingObj != null ? ratingObj : 3.0;
         if (latestRating < 3.0) {
             risk += (3.0 - latestRating) * 15.0;
         } else if (latestRating > 4.0) {

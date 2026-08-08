@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatCurrency } from '../../lib/format';
 import { usePayrollSummary } from '../hooks/useAdminQuery';
 import type { PayrollSlip } from '../types';
 import { 
@@ -65,7 +66,7 @@ export const PayrollOverview: React.FC = () => {
         <Card className="p-4 flex items-center justify-between border-l-4 border-l-emerald-500 shadow-sm">
           <div>
             <span className="text-[10px] font-bold text-foreground/50 uppercase tracking-wide block">Disbursed Volume</span>
-            <span className="text-2xl font-extrabold text-foreground mt-1.5 block leading-none">${paidCost.toLocaleString()}</span>
+            <span className="text-2xl font-extrabold text-foreground mt-1.5 block leading-none">{formatCurrency(paidCost)}</span>
           </div>
           <CheckCircle2 size={20} className="text-emerald-500" />
         </Card>
@@ -73,7 +74,7 @@ export const PayrollOverview: React.FC = () => {
         <Card className="p-4 flex items-center justify-between border-l-4 border-l-amber-500 shadow-sm">
           <div>
             <span className="text-[10px] font-bold text-foreground/50 uppercase tracking-wide block">Pending Drafts</span>
-            <span className="text-2xl font-extrabold text-foreground mt-1.5 block leading-none">${pendingCost.toLocaleString()}</span>
+            <span className="text-2xl font-extrabold text-foreground mt-1.5 block leading-none">{formatCurrency(pendingCost)}</span>
           </div>
           <AlertCircle size={20} className="text-amber-500" />
         </Card>
@@ -81,7 +82,7 @@ export const PayrollOverview: React.FC = () => {
         <Card className="p-4 flex items-center justify-between border-l-4 border-l-emerald-500 shadow-sm">
           <div>
             <span className="text-[10px] font-bold text-foreground/50 uppercase tracking-wide block">Total Cost Cost</span>
-            <span className="text-2xl font-extrabold text-foreground mt-1.5 block leading-none">${totalCost.toLocaleString()}</span>
+            <span className="text-2xl font-extrabold text-foreground mt-1.5 block leading-none">{formatCurrency(totalCost)}</span>
           </div>
           <DollarSign size={20} className="text-emerald-500" />
         </Card>
@@ -144,10 +145,10 @@ export const PayrollOverview: React.FC = () => {
                   <TableRow key={s.id}>
                     <TableCell className="font-bold text-foreground">{s.employeeName}</TableCell>
                     <TableCell className="font-mono text-foreground/60 text-[10px]">{s.payPeriodStart} ~ {s.payPeriodEnd}</TableCell>
-                    <TableCell className="font-mono text-foreground/70">${s.basicSalary.toLocaleString()}</TableCell>
-                    <TableCell className="font-mono text-foreground/70 text-emerald-500">+${s.allowances.toLocaleString()}</TableCell>
-                    <TableCell className="font-mono text-foreground/70 text-destructive">-${s.deductions.toLocaleString()}</TableCell>
-                    <TableCell className="font-mono text-foreground font-bold">${s.netSalary.toLocaleString()}</TableCell>
+                    <TableCell className="font-mono text-foreground/70">{formatCurrency(s.basicSalary)}</TableCell>
+                    <TableCell className="font-mono text-foreground/70 text-emerald-500">+{formatCurrency(s.allowances)}</TableCell>
+                    <TableCell className="font-mono text-foreground/70 text-destructive">-{formatCurrency(s.deductions)}</TableCell>
+                    <TableCell className="font-mono text-foreground font-bold">{formatCurrency(s.netSalary)}</TableCell>
                     <TableCell>
                       <Badge variant={s.status === 'PAID' ? 'success' : 'warning'}>
                         {s.status}
@@ -218,21 +219,21 @@ export const PayrollOverview: React.FC = () => {
               <div className="space-y-1.5 pt-1.5 border-t border-surface-border">
                 <div className="flex justify-between text-foreground/60">
                   <span>Basic salary:</span>
-                  <span className="font-mono text-foreground font-semibold">${selectedSlip.basicSalary.toLocaleString()}</span>
+                  <span className="font-mono text-foreground font-semibold">{formatCurrency(selectedSlip.basicSalary)}</span>
                 </div>
                 <div className="flex justify-between text-foreground/60">
                   <span>Department allowances (10%):</span>
-                  <span className="font-mono text-emerald-500 font-semibold">+${selectedSlip.allowances.toLocaleString()}</span>
+                  <span className="font-mono text-emerald-500 font-semibold">+{formatCurrency(selectedSlip.allowances)}</span>
                 </div>
                 <div className="flex justify-between text-foreground/60">
                   <span>Unpaid leave deductions:</span>
-                  <span className="font-mono text-destructive font-semibold">-${selectedSlip.deductions.toLocaleString()}</span>
+                  <span className="font-mono text-destructive font-semibold">-{formatCurrency(selectedSlip.deductions)}</span>
                 </div>
               </div>
 
               <div className="flex justify-between items-center pt-3 border-t border-surface-border text-sm">
                 <span className="font-extrabold text-foreground">Net Disbursed Salary:</span>
-                <span className="font-mono font-extrabold text-foreground text-base">${selectedSlip.netSalary.toLocaleString()}</span>
+                <span className="font-mono font-extrabold text-foreground text-base">{formatCurrency(selectedSlip.netSalary)}</span>
               </div>
             </div>
 
